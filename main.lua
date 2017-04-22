@@ -80,14 +80,16 @@ end
 function love.draw()
     local x, y = love.graphics.getDimensions()
 
-    love.graphics.clear(136, 128, 120)
+    love.graphics.clear(123, 76, 83)
 
     love.graphics.stencil(crustalCircle, "invert", 1)
 
     love.graphics.setStencilTest("greater", 0)
-    love.graphics.setShader(shader)
+    --love.graphics.setShader(shader)
+    love.graphics.setColor(86, 186, 112)
     love.graphics.rectangle("fill", 0, 0, x, y)
-    love.graphics.setShader()
+    love.graphics.setColor(255, 255, 255)
+    --love.graphics.setShader()
     love.graphics.setStencilTest()
 
     crustal:draw(camera)
