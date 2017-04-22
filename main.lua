@@ -12,6 +12,7 @@ ceil = math.ceil
 min = math.min
 max = math.max
 
+PHYS_UNIT = 48
 CAT_FRIENDLY = 0x0002
 CAT_ENEMY = 0x0004
 
@@ -69,7 +70,7 @@ function love.load()
     love.window.setMode(800, 600, { resizable = true, vsync = true })
     local w, h = love.graphics.getDimensions()
 
-    love.physics.setMeter(48)
+    love.physics.setMeter(PHYS_UNIT)
     world = love.physics.newWorld(0, 0, true)
 
     camera = Camera()
@@ -92,29 +93,17 @@ function love.load()
     environment = Environment(256)
     addActor(environment)
 
-    crustal = Crustal()
+    crustal = Crustal(0, 0, 192)
     crustcle = Crustcle(192)
     addActor(crustal)
 
     shader = love.graphics.newShader[[
-        uniform float time;
-        uniform vec2 pts[3];
-        uniform vec4 colors[3];
+        uniform vec2 crustal;
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-
-            float totalDst = 0;
-            float dsts[3];
-            for (int i = 0; i < 3; i++) {
-                dsts[i] = distance(screen_coords, pts[i]);
-                totalDst += dsts[i];
-            }
-
-            vec4 col = vec4(0);
-            for (int i = 0; i < 3; i++) {
-                col += (1 - (dsts[i] / totalDst)) * colors[i];
-            }
-
-            return col;
+            float dst = max(distance(crustal, screen_coords) - 256, 0);
+            vec4 col = Texel(texture, texture_coords) * color;
+            vec3 rgb = vec3(col) * max(1 - dst/512.0, 0.25);
+            return vec4(rgb, col.a);
         }
     ]]
 end
@@ -126,16 +115,19 @@ function love.draw()
     --love.graphics.scale(2, 2)
     local x, y = love.graphics.getDimensions()
 
-    love.graphics.clear(90, 67, 73)
+    local cx, cy = camera:pos()
+    shader:send("crustal", {crustal.x - cx, crustal.y - cy})
+    love.graphics.setShader(shader)
+
+    love.graphics.setColor(100, 67, 93)
+    love.graphics.rectangle("fill", 0, 0, x, y)
 
     love.graphics.stencil(crustalCircle, "invert", 1)
 
     love.graphics.setStencilTest("greater", 0)
-    --love.graphics.setShader(shader)
     love.graphics.setColor(86, 186, 112)
     love.graphics.rectangle("fill", 0, 0, x, y)
     love.graphics.setColor(255, 255, 255)
-    --love.graphics.setShader()
     love.graphics.setStencilTest()
 
     table.sort(actors, zSort)
@@ -145,9 +137,6 @@ function love.draw()
 end
 function love.update(dt)
     shaderT = shaderT + shaderDt
-    -- shader:send("time", shaderT)
-    shader:send("pts", unpack(shaderPts))
-    shader:send("colors", unpack(shaderColors))
 
     crustcle:update(dt)
     for i = #actors, 1, -1 do

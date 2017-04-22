@@ -23,11 +23,11 @@ setmetatable(Cruspt, {
 Crustcle = {}
 Crustcle.__index = Crustcle
 local function newCrustcle(size)
-    local segments = floor(size / 3)
+    local segments = floor(size / 8)
     local pts = {}
     for i = 1, segments do
         local angle = i/segments * math.pi * 2
-        pts[i] = Cruspt(size, math.random() * (size/32) + (size/48), angle, math.pi / segments)
+        pts[i] = Cruspt(size, math.random() * (size/8) + (size/48), angle, math.pi / segments)
     end
     crustcle = setmetatable({
         x = 0,
@@ -68,7 +68,7 @@ end
 CRUSTAL_TARGET_SIZE = 2500
 Crustal = {}
 Crustal.__index = Crustal
-local function newCrustal(x, y)
+local function newCrustal(x, y, size)
     local img = love.graphics.newImage("imgs/crustal.png")
     return setmetatable({
       x = x or 0,
@@ -76,7 +76,8 @@ local function newCrustal(x, y)
       lastSparkle = 0,
       targetX = (x or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
       targetY = (y or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
-      sprite = AnimSprite(img, 24, 32, 30, true, 12, 24)
+      sprite = AnimSprite(img, 24, 32, 30, true, 12, 24),
+      size = size,
     }, Crustal)
 end
 setmetatable(Crustal, {
@@ -87,8 +88,8 @@ function Crustal:draw(camera)
     self.sprite:draw(self.x - cx, self.y - cy)
 end
 function Crustal:update(dt)
-    self.x = self.x + ((self.x < self.targetX) and 1 or -1)
-    self.y = self.y + ((self.y < self.targetY) and 1 or -1)
+    self.x = self.x + ((self.x < self.targetX) and 0.5 or -0.5)
+    self.y = self.y + ((self.y < self.targetY) and 0.5 or -0.5)
 
     if (self.targetX - self.x) < 20 and self.targetY - self.y < 20 then
         self.targetX = self.x + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
@@ -97,19 +98,24 @@ function Crustal:update(dt)
 
     -- Leave a trail of sparkles
     local t = love.timer.getTime()
-    if t - self.lastSparkle > 0.1 then
+    if t - self.lastSparkle > 0.05 then
         local x, y = self.x, self.y
         -- Randomise starting x,y in a 24px circle
-        local r = rand() * 2 * pi
-        local a = rand() * 12
+        local r = rand() * 64
+        local a = rand() * 2 * pi
         x = x + r*cos(a)
         y = y + r*sin(a)
         -- Add in current velocity
         x = x + ((self.x < self.targetX) and -12 or 12)
         y = y + ((self.y < self.targetY) and -12 or 12)
-        addActor(Sparkle(x, y, rand() + 1))
+        addActor(Sparkle(x, y))
         self.lastSparkle = t
     end
+    --if rand() < 0.05 then
+        local a = rand() * 2 * pi
+        local r = rand() * self.size
+        addActor(MiniSpark(self.x + cos(a) * r, self.y + sin(a) * r))
+    --end
 end
 function Crustal:getZ()
     return self.y
