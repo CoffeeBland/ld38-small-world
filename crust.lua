@@ -1,5 +1,3 @@
-crustal = love.graphics.newImage("imgs/crustal.png")
-
 Cruspt = {}
 Cruspt.__index = Cruspt
 function Cruspt:update(dt)
@@ -21,14 +19,16 @@ setmetatable(Cruspt, {
     __call = function(_, ...) return newCruspt(...) end
 })
 
+
 Crustcle = {}
 Crustcle.__index = Crustcle
-function Crustcle:poly()
+function Crustcle:poly(camera)
+    local cx, cy = camera:pos()
     local poly = {}
     for i = 1, #self.pts do
         local pt = self.pts[i]
-        poly[i*2-1] = math.cos(pt.a) * pt.r + self.x
-        poly[i*2] = math.sin(pt.a) * pt.r + self.y
+        poly[i*2-1] = math.cos(pt.a) * pt.r + self.x - cx
+        poly[i*2] = math.sin(pt.a) * pt.r + self.y - cy
     end
     return poly
 end
@@ -38,20 +38,46 @@ function Crustcle:update(dt)
         nextI = (i + 1) % #self.pts
         pt:update(dt, self.pts[prevI], self.pts[nextI])
     end
+    self.x = crustal.x
+    self.y = crustal.y
 end
-local function newCrustcle(segments)
+local function newCrustcle(size)
+    local segments = floor(size / 3)
     local pts = {}
     for i = 1, segments do
         local angle = i/segments * math.pi * 2
-        pts[i] = Cruspt(48, math.random() * 3 + 2, angle, math.pi / segments)
+        pts[i] = Cruspt(size, math.random() * (size/32) + (size/48), angle, math.pi / segments)
     end
     crustcle = setmetatable({
-        x = 100,
-        y = 100,
+        x = 0,
+        y = 0,
         pts = pts
     }, Crustcle)
     return crustcle
 end
 setmetatable(Crustcle, {
     __call = function(_, ...) return newCrustcle(...) end
+})
+
+
+Crustal = {}
+Crustal.__index = Crustal
+function Crustal:draw(camera)
+    local cx, cy = camera:pos()
+    self.sprite:draw(self.x - cx, self.y - cy)
+end
+function Crustal:update(dt)
+end
+function Crustal:pos()
+  return self.x, self.y
+end
+local function newCrustal(x, y)
+    return setmetatable({
+      x = x or 0,
+      y = y or 0,
+      sprite = AnimSprite("crustal.png", 24, 24)
+    }, Crustal)
+end
+setmetatable(Crustal, {
+    __call = function(_, ...) return newCrustal(...) end
 })
