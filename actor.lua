@@ -14,7 +14,8 @@ function AnimSprite:quad()
     return self.quads[self.tx][self.ty]
 end
 function AnimSprite:draw(x, y)
-    love.graphics.draw(self.img, self:quad(), self.x + x, self.y + y)
+    love.graphics.draw(self.img, self:quad(), x, y,
+        0, (self.flipX and -1) or 1, (self.flipY and -1) or 1, self.x, self.y)
 end
 local function newAnimSprite(name, tw, th, fpt, loop, x, y)
     local img = love.graphics.newImage("imgs/" .. name)
@@ -34,6 +35,7 @@ local function newAnimSprite(name, tw, th, fpt, loop, x, y)
         txs = txs, tys = tys,
         tw = tw, th = th,
         quads = quads,
+        flipX = false, flipY = false,
         img = img,
         loop = loop or true,
         fpt = fpt or 3,
@@ -80,6 +82,11 @@ function Player:update(dt)
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(
             self.movementX * self.speed, self.movementY * self.speed)
+
+        self.sprite.ty =
+            (self.movementX ~= 0 and 2) or 0
+        self.sprite.flipX = self.movementX < 0
+        self.sprite.flipY = self.movementY < 0
     end
     self.sprite:update(dt)
 end
