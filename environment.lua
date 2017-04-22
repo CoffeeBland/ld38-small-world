@@ -61,7 +61,7 @@ local function newEnvironment(chunkSize)
     return setmetatable({
         chunkSize = chunkSize,
         chunks = {},
-        ttSpawnBasic = 1,
+        ttSpawnBasic = 240,
         spawnRateBasic = 240,
     }, Environment)
 end
