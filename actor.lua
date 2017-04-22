@@ -30,7 +30,7 @@ local function newAnimSprite(name, tw, th, fpt, loop, x, y)
         end
     end
     return setmetatable({
-        x = x or 0, y = y or 0,
+        x = x or -tw/2, y = y or -th/2,
         tx = 0, ty = 0,
         txs = txs, tys = tys,
         tw = tw, th = th,
@@ -90,8 +90,13 @@ function Player:update(dt)
     end
     self.sprite:update(dt)
 end
-function Player:draw()
-    self.sprite:draw(self.body:getX(), self.body:getY())
+function Player:pos()
+    return self.body:getX(), self.body:getY()
+end
+function Player:draw(camera)
+    local cx, cy = camera:pos()
+    local x, y = self:pos()
+    self.sprite:draw(x - cx, y - cy)
 end
 setmetatable(Player, {
     __call = function(_, ...) return newPlayer(...) end

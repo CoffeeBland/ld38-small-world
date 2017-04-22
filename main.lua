@@ -1,10 +1,20 @@
+pow = math.pow
+sqrt = math.sqrt
+rand = math.random
+floor = math.floor
+
+require('camera')
 require('actor')
 require('crust')
 
-crustcle = Crustcle(32)
+camera = Camera()
+
+crustcle = Crustcle(192)
+
 function crustalCircle()
-    love.graphics.polygon("fill", crustcle:poly())
+    love.graphics.polygon("fill", crustcle:poly(camera))
 end
+
 
 shaderT = 0
 shaderDt = 2 * math.pi / 60
@@ -44,6 +54,9 @@ shader = love.graphics.newShader[[
 
 function love.load()
     love.window.setMode(640, 480, { resizable = true, vsync = true })
+    local w, h = love.graphics.getDimensions()
+
+    crustal = Crustal()
 
     love.physics.setMeter(48)
     world = love.physics.newWorld(0, 0, true)
@@ -66,10 +79,8 @@ end
 
 function love.draw()
     local x, y = love.graphics.getDimensions()
-    local cx, cy = crustal:getDimensions()
 
-    love.graphics.clear(255, 128, 128)
-    love.graphics.draw(crustal, x/2 - cx/2, y/2 - cy/2)
+    love.graphics.clear(136, 128, 120)
 
     love.graphics.stencil(crustalCircle, "invert", 1)
 
@@ -79,18 +90,21 @@ function love.draw()
     love.graphics.setShader()
     love.graphics.setStencilTest()
 
-    player:draw()
+    crustal:draw(camera)
+    player:draw(camera)
 end
 function love.update(dt)
     shaderT = shaderT + shaderDt
     --shader:send("time", shaderT)
-    shader:send("pts", unpack(shaderPts));
-    shader:send("colors", unpack(shaderColors));
+    shader:send("pts", unpack(shaderPts))
+    shader:send("colors", unpack(shaderColors))
 
+    crustal:update(dt)
     crustcle:update(dt)
     player:update(dt)
     world:update(dt)
 
-    crustcle.x = player.body:getX()
-    crustcle.y = player.body:getY()
+    local px, py = player:pos()
+    local cx, cy = crustal:pos()
+    camera.x, camera.y = (px+cx)/2, (py+cy)/2
 end
