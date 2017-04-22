@@ -7,6 +7,8 @@ local function newPlayer(sprite, controls)
     local shape = love.physics.newCircleShape(1)
     local fixture = love.physics.newFixture(body, shape, 1)
 
+    fixture:setCategory(CAT_FRIENDLY)
+
     return setmetatable({
         sprite = sprite,
         controls = controls,
@@ -15,6 +17,7 @@ local function newPlayer(sprite, controls)
         fixture = fixture,
         speed = 0.1,
         ty = 0,
+        lastShoot = 0,
         movementX = 0,
         movementY = 0,
         lastMovementX = 1,
@@ -34,11 +37,18 @@ function Player:right(dt)
     self.movementX = self.movementX + 1
 end
 function Player:shoot(dt)
-    addProjectile(Bullet(self.x, self.y, self.lastMovementX, self.lastMovementY))
+    local t = love.timer.getTime()
+    if t - self.lastShoot > 0.25 then
+        local velX, velY = self.body:getLinearVelocity()
+        addProjectile(Bullet(
+            self.body:getX(), self.body:getY(),
+            self.lastMovementX, self.lastMovementY,
+            velX, velY
+        ))
+        self.lastShoot = t
+    end
 end
 function Player:update(dt)
-    self.lastMovementX = self.movementX > 0 and self.movementX or self.lastMovementX
-    self.lastMovementY = self.movementY > 0 and self.movementY or self.lastMovementY
     self.movementX = 0
     self.movementY = 0
     for k, c in pairs(self.controls) do
@@ -56,6 +66,9 @@ function Player:update(dt)
         self.sprite.flipX = self.movementX < 0
         self.sprite.flipY = self.movementX == 0 and self.movementY < 0
         self.sprite.ty = self.ty
+
+        self.lastMovementX = self.movementX
+        self.lastMovementY = self.movementY
     else
         self.sprite.ty = self.ty + 1
     end

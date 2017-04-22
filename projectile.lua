@@ -1,7 +1,7 @@
 Projectile = {}
 Projectile.__index = Projectile
 local function newProjectile(sprite, x, y, shape)
-    local body = love.physics.newBody(world, x, y, "dynamic")
+    local body = love.physics.newBody(world, x, y, "kinematic")
     body:setFixedRotation(true)
     body:setLinearDamping(5)
     local fixture = love.physics.newFixture(body, shape, 1)
@@ -25,9 +25,10 @@ setmetatable(Projectile, {
 
 local bulletSprite = AnimSprite("bullet.png", 8, 8)
 
-Bullet = function(x, y, dirX, dirY)
+Bullet = function(x, y, dirX, dirY, initVelX, initVelY)
     local shape = love.physics.newCircleShape(0.16666)
     p =  Projectile(bulletSprite, x, y, shape)
-    p.body:applyLinearImpulse(dirX * 10, dirY * 10)
+    p.body:setLinearVelocity((dirX * 480) + initVelX, (dirY * 480) + initVelY)
+    p.fixture:setFilterData(CAT_FRIENDLY, CAT_ENEMY, GRP_PROJ)
     return p
 end

@@ -3,6 +3,11 @@ sqrt = math.sqrt
 rand = math.random
 floor = math.floor
 
+CAT_FRIENDLY = 0x0002
+CAT_ENEMY = 0x0004
+
+GRP_PROJ = -1
+
 require('camera')
 require('sprite')
 require('projectile')
