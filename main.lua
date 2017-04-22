@@ -1,4 +1,3 @@
-
 love.graphics.setDefaultFilter("nearest", "nearest")
 
 pi = math.pi
@@ -29,6 +28,9 @@ environment = nil
 player = nil
 crustal = nil
 crustcle = nil
+
+playerImg = love.graphics.newImage("imgs/wallabi.png")
+enemyBasicImg = love.graphics.newImage("imgs/enemy_basic.png")
 
 function crustalCircle()
     love.graphics.polygon("fill", crustcle:poly(camera))
@@ -74,8 +76,7 @@ function love.load()
 
     camera = Camera()
 
-    local wallabi = love.graphics.newImage("imgs/wallabi.png")
-    local sprite = AnimSprite(wallabi, 48, 48, 4, true, 24, 32)
+    local sprite = AnimSprite(playerImg, 48, 48, 4, true, 24, 32)
     player = Player(sprite, {
         up = "up",
         left = "left",
@@ -120,6 +121,12 @@ function love.load()
 end
 
 function zSort(a, b)
+    if a.getZ == nil then
+        return false
+    end
+    if b.getZ == nil then
+        return true
+    end
     return (b:getZ() - a:getZ()) > 0
 end
 function love.draw()
