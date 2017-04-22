@@ -6,12 +6,28 @@ local propsImg = love.graphics.newImage("imgs/props.png")
 local propsSprite = AnimSprite(propsImg, 16, 16)
 local function newChunk(x, y, w, h)
     local props = {}
+    local colors = {
+        -- Grass
+        { 82, 230, 118},
+        { 140, 120, 73 },
+        -- Rock
+        { 255, 255, 255 },
+        { 255, 255, 255 },
+    }
     for i = 0, rand(20) do
+        local ty
+        if rand() < 0.75 then
+            ty = 0
+        else
+            ty = 1
+        end
         props[i] = {
-            x = rand() * w,
-            y = rand() * h,
+            x = x + rand() * w,
+            y = y + rand() * h,
             tx = rand(3) - 1,
-            ty = rand(2) - 1
+            ty = ty,
+            good = colors[ty * 2 + 1],
+            evil = colors[ty * 2 + 2],
         }
     end
     return setmetatable({
@@ -30,11 +46,12 @@ function Chunk:pos()
 end
 function Chunk:draw(camera)
     local cx, cy = camera:pos()
-    local x, y = self:pos()
     for i, p in pairs(self.props) do
+        love.graphics.setColor((crustcle:inside(p.x, p.y) and p.good) or p.evil)
         propsSprite.tx = p.tx
         propsSprite.ty = p.ty
-        propsSprite:draw(x + p.x - cx, y + p.y - cy)
+        propsSprite:draw(p.x - cx, p.y - cy)
+        love.graphics.setColor(255, 255, 255)
     end
 end
 

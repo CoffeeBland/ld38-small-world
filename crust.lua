@@ -22,6 +22,25 @@ setmetatable(Cruspt, {
 
 Crustcle = {}
 Crustcle.__index = Crustcle
+local function newCrustcle(size)
+    local segments = floor(size / 3)
+    local pts = {}
+    for i = 1, segments do
+        local angle = i/segments * math.pi * 2
+        pts[i] = Cruspt(size, math.random() * (size/32) + (size/48), angle, math.pi / segments)
+    end
+    crustcle = setmetatable({
+        x = 0,
+        y = 0,
+        pts = pts,
+        size = size,
+        size2 = pow(size, 2)
+    }, Crustcle)
+    return crustcle
+end
+setmetatable(Crustcle, {
+    __call = function(_, ...) return newCrustcle(...) end
+})
 function Crustcle:poly(camera)
     local cx, cy = camera:pos()
     local poly = {}
@@ -41,52 +60,20 @@ function Crustcle:update(dt)
     self.x = crustal.x
     self.y = crustal.y
 end
-local function newCrustcle(size)
-    local segments = floor(size / 3)
-    local pts = {}
-    for i = 1, segments do
-        local angle = i/segments * math.pi * 2
-        pts[i] = Cruspt(size, math.random() * (size/32) + (size/48), angle, math.pi / segments)
-    end
-    crustcle = setmetatable({
-        x = 0,
-        y = 0,
-        pts = pts
-    }, Crustcle)
-    return crustcle
+function Crustcle:inside(x, y)
+    return pow(x - self.x, 2) + pow(y - self.y, 2) < self.size2
 end
-setmetatable(Crustcle, {
-    __call = function(_, ...) return newCrustcle(...) end
-})
 
 
 CRUSTAL_TARGET_SIZE = 2500
 Crustal = {}
 Crustal.__index = Crustal
-function Crustal:draw(camera)
-    local cx, cy = camera:pos()
-    self.sprite:draw(self.x - cx, self.y - cy)
-end
-function Crustal:update(dt)
-    --self.x = self.x + ((self.x < self.targetX) and 1 or -1)
-    --self.y = self.y + ((self.y < self.targetY) and 1 or -1)
-    self.sprite:update(dt)
-    if (self.targetX - self.x) < 20 and self.targetY - self.y < 20 then
-        self.targetX = self.x + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
-        self.targetY = self.y + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
-    end
-end
-function Crustal:pos()
-  return self.x, self.y
-end
-function Crustal:getZ()
-    return self.y
-end
 local function newCrustal(x, y)
     local img = love.graphics.newImage("imgs/crustal.png")
     return setmetatable({
       x = x or 0,
       y = y or 0,
+      lastSparkle = 0,
       targetX = (x or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
       targetY = (y or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
       sprite = AnimSprite(img, 24, 32, 30, true, 12, 24)
@@ -95,3 +82,38 @@ end
 setmetatable(Crustal, {
     __call = function(_, ...) return newCrustal(...) end
 })
+function Crustal:draw(camera)
+    local cx, cy = camera:pos()
+    self.sprite:draw(self.x - cx, self.y - cy)
+end
+function Crustal:update(dt)
+    self.x = self.x + ((self.x < self.targetX) and 1 or -1)
+    self.y = self.y + ((self.y < self.targetY) and 1 or -1)
+
+    if (self.targetX - self.x) < 20 and self.targetY - self.y < 20 then
+        self.targetX = self.x + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
+        self.targetY = self.y + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
+    end
+
+    -- Leave a trail of sparkles
+    local t = love.timer.getTime()
+    if t - self.lastSparkle > 0.1 then
+        local x, y = self.x, self.y
+        -- Randomise starting x,y in a 24px circle
+        local r = rand() * 2 * pi
+        local a = rand() * 12
+        x = x + r*cos(a)
+        y = y + r*sin(a)
+        -- Add in current velocity
+        x = x + ((self.x < self.targetX) and -12 or 12)
+        y = y + ((self.y < self.targetY) and -12 or 12)
+        addActor(Sparkle(x, y, rand() + 1))
+        self.lastSparkle = t
+    end
+end
+function Crustal:getZ()
+    return self.y
+end
+function Crustal:pos()
+  return self.x, self.y
+end

@@ -1,3 +1,9 @@
+
+love.graphics.setDefaultFilter("nearest", "nearest")
+
+pi = math.pi
+cos = math.cos
+sin = math.sin
 pow = math.pow
 sqrt = math.sqrt
 rand = math.random
@@ -32,6 +38,17 @@ actors = {}
 function addActor(p)
     table.insert(actors, p)
 end
+function removeBody(actor)
+    local bodies = world:getBodyList()
+    for i = #bodies, 1, -1 do
+        if bodies[i] == actor.body then
+            actor.fixture:destroy()
+            actor.body:destroy()
+            table.remove(bodies, i)
+            break
+        end
+    end
+end
 
 shaderT = 0
 shaderDt = 2 * math.pi / 60
@@ -49,7 +66,7 @@ shaderColors = {
 }
 
 function love.load()
-    love.window.setMode(640, 480, { resizable = true, vsync = true })
+    love.window.setMode(800, 600, { resizable = true, vsync = true })
     local w, h = love.graphics.getDimensions()
 
     love.physics.setMeter(48)
@@ -64,6 +81,10 @@ function love.load()
         left = "left",
         down = "down",
         right = "right",
+        k = "up",
+        h = "left",
+        j = "down",
+        l = "right",
         space = "shoot",
     })
     addActor(player)
@@ -102,9 +123,10 @@ function zSort(a, b)
     return (b:getZ() - a:getZ()) > 0
 end
 function love.draw()
+    --love.graphics.scale(2, 2)
     local x, y = love.graphics.getDimensions()
 
-    love.graphics.clear(123, 76, 83)
+    love.graphics.clear(90, 67, 73)
 
     love.graphics.stencil(crustalCircle, "invert", 1)
 
@@ -133,6 +155,9 @@ function love.update(dt)
         a:update(dt)
         if (a.shouldRemove) then
             table.remove(actors, i)
+            if a.destroy ~= nil then
+                a:destroy()
+            end
         end
     end
     world:update(dt)
