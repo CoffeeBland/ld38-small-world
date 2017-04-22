@@ -84,7 +84,7 @@ function Player:update(dt)
     self.sprite:update(dt)
 end
 function Player:pos()
-  return self.body:getX(), self.body:getY()
+    return self.body:getX(), self.body:getY()
 end
 function Player:draw(camera)
     local cx, cy = camera:pos()

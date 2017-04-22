@@ -60,6 +60,7 @@ setmetatable(Crustcle, {
 })
 
 
+CRUSTAL_TARGET_SIZE = 2500
 Crustal = {}
 Crustal.__index = Crustal
 function Crustal:draw(camera)
@@ -67,6 +68,13 @@ function Crustal:draw(camera)
     self.sprite:draw(self.x - cx, self.y - cy)
 end
 function Crustal:update(dt)
+  self.x = self.x + ((self.x < self.targetX) and 1 or -1)
+  self.y = self.y + ((self.y < self.targetY) and 1 or -1)
+
+  if (self.targetX - self.x) < 20 and self.targetY - self.y < 20 then
+    self.targetX = self.x + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
+    self.targetY = self.y + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
+  end
 end
 function Crustal:pos()
   return self.x, self.y
@@ -75,6 +83,8 @@ local function newCrustal(x, y)
     return setmetatable({
       x = x or 0,
       y = y or 0,
+      targetX = (x or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
+      targetY = (y or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
       sprite = AnimSprite("crustal.png", 24, 24)
     }, Crustal)
 end

@@ -1,10 +1,11 @@
+pow = math.pow
+sqrt = math.sqrt
+rand = math.random
+floor = math.floor
+
 require('camera')
 require('actor')
 require('crust')
-
-pow = math.pow
-sqrt = math.sqrt
-floor = math.floor
 
 camera = Camera()
 
