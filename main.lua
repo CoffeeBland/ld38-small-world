@@ -43,7 +43,7 @@ local function newCrustcle(segments)
     local pts = {}
     for i = 1, segments do
         local angle = i/segments * math.pi * 2
-        pts[i] = Cruspt(1024, math.random() * 3 + 2, angle, math.pi / segments)
+        pts[i] = Cruspt(48, math.random() * 3 + 2, angle, math.pi / segments)
     end
     crustcle = setmetatable({
         x = 100,
@@ -64,30 +64,35 @@ end
 shaderT = 0
 shaderDt = 2 * math.pi / 60
 shaderPts = {
-    { 80, 80 },
-    { 120, 120 },
-    { 180, 180 }
+    { 100, 100 },
+    { 140, 100 },
+    { 120, 130 },
+    'banana'
 }
 shaderColors = {
     { 1, 0, 0, 1 },
     { 0, 0, 1, 1 },
-    { 1, 0, 1, 1 }
+    { 0, 1, 0, 1 },
+    'banana'
 }
 shader = love.graphics.newShader[[
     uniform float time;
     uniform vec2 pts[3];
     uniform vec4 colors[3];
     vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-        float minDst = -1;
-        int min = 0;
-        vec4 col;
+
+        float totalDst = 0;
+        float dsts[3];
         for (int i = 0; i < 3; i++) {
-            float dst = distance(screen_coords, pts[i]);
-            if (minDst >= 0 && dst >= minDst) continue;
-            minDst = dst;
-            min = i;
-            col = colors[min];
+            dsts[i] = distance(screen_coords, pts[i]);
+            totalDst += dsts[i];
         }
+
+        vec4 col = vec4(0);
+        for (int i = 0; i < 3; i++) {
+            col += (1 - (dsts[i] / totalDst)) * colors[i];
+        }
+
         return col;
     }
 ]]
