@@ -2,11 +2,10 @@ Player = {}
 Player.__index = Player
 local function newPlayer(sprite, controls)
     local body = love.physics.newBody(world, 0, 0, "dynamic")
-    body:setFixedRotation(true)
-    body:setLinearDamping(10)
     local shape = love.physics.newCircleShape(1)
     local fixture = love.physics.newFixture(body, shape, 1)
-
+    body:setFixedRotation(true)
+    body:setLinearDamping(10)
     fixture:setCategory(CAT_FRIENDLY)
 
     return setmetatable({
@@ -24,6 +23,9 @@ local function newPlayer(sprite, controls)
         lastMovementY = 0,
     }, Player)
 end
+setmetatable(Player, {
+    __call = function(_, ...) return newPlayer(...) end
+})
 function Player:up(dt)
     self.movementY = self.movementY - 1
 end
@@ -85,6 +87,49 @@ function Player:draw(camera)
     local x, y = self:pos()
     self.sprite:draw(x - cx, y - cy)
 end
-setmetatable(Player, {
-    __call = function(_, ...) return newPlayer(...) end
+
+
+Enemy = {}
+Enemy.__index = Enemy
+local function newEnemy(type, x, y)
+    local sprite = AnimSprite(enemyBasicImg, 48, 48, 4, true, 24, 32)
+    local body = love.physics.newBody(world, x, y, "dynamic")
+    local shape = love.physics.newCircleShape(1)
+    local fixture = love.physics.newFixture(body, shape, 1)
+    body:setFixedRotation(true)
+    body:setLinearDamping(10)
+    fixture:setCategory(CAT_ENEMY)
+
+    return setmetatable({
+        type = type,
+        sprite = sprite,
+        body = body,
+        shape = shape,
+        fixture = fixture,
+        ty = 0,
+    }, Enemy)
+end
+setmetatable(Enemy, {
+    __call = function(_, ...) return newEnemy(...) end
 })
+function Enemy:pos()
+    return self.body:getX(), self.body:getY()
+end
+function Enemy:draw(camera)
+    local cx, cy = camera:pos()
+    local x, y = self:pos()
+    self.sprite:draw(x - cx, y - cy)
+end
+function Enemy:update(dt)
+    -- Approch crustal
+    local crustalX, crustalY = crustal:pos()
+    local x, y = self:pos()
+    velX =((x < crustalX) and 1 or -1)
+    velY =((y < crustalY) and 1 or -1)
+    self.body:applyLinearImpulse(velX, velY)
+end
+
+
+EnemyBasic = function(x, y)
+    return Enemy("basic", x, y)
+end
