@@ -1,3 +1,6 @@
+pi = math.pi
+cos = math.cos
+sin = math.sin
 pow = math.pow
 sqrt = math.sqrt
 rand = math.random
@@ -26,6 +29,17 @@ end
 actors = {}
 function addActor(p)
     table.insert(actors, p)
+end
+function removeBody(actor)
+    local bodies = world:getBodyList()
+    for i = #bodies, 1, -1 do
+        if bodies[i] == actor.body then
+            actor.fixture:destroy()
+            actor.body:destroy()
+            table.remove(bodies, i)
+            break
+        end
+    end
 end
 
 shaderT = 0
@@ -124,6 +138,9 @@ function love.update(dt)
         a:update(dt)
         if (a.shouldRemove) then
             table.remove(actors, i)
+            if a.destroy ~= nil then
+                a:destroy()
+            end
         end
     end
     world:update(dt)

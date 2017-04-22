@@ -93,9 +93,15 @@ function Crustal:update(dt)
     local t = love.timer.getTime()
     if t - self.lastSparkle > 0.1 then
         local x, y = self.x, self.y
-        x = x + (rand()-0.5) * 24
-        y = y + (rand()-0.5) * 24
-        addProjectile(Sparkle(x, y, 1.5))
+        -- Randomise starting x,y in a 24px circle
+        local r = rand() * 2 * pi
+        local a = rand() * 12
+        x = x + r*cos(a)
+        y = y + r*sin(a)
+        -- Add in current velocity
+        x = x + ((self.x < self.targetX) and -12 or 12)
+        y = y + ((self.y < self.targetY) and -12 or 12)
+        addActor(Sparkle(x, y, rand() + 1))
         self.lastSparkle = t
     end
 end

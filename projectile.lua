@@ -11,7 +11,7 @@ local function newProjectile(sprite, x, y, shape, ttl)
         shape = shape,
         fixture = fixture,
         startT = love.timer.getTime(),
-        ttl,
+        ttl = ttl,
     }, Projectile)
 end
 setmetatable(Projectile, {
@@ -26,9 +26,12 @@ function Projectile:getZ()
 end
 function Projectile:update(dt)
     local t = love.timer.getTime()
-    if (t - startT + ttl) > 0 then
-        -- derp
+    if (t - self.startT - self.ttl) > 0 then
+        self.shouldRemove = true
     end
+end
+function Projectile:destroy()
+    removeBody(self)
 end
 
 
