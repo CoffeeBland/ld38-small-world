@@ -45,7 +45,7 @@ end
 local bulletSprite = AnimSprite("bullet.png", 8, 8)
 Bullet = function(x, y, dirX, dirY, initVelX, initVelY)
     local shape = love.physics.newCircleShape(0.16666)
-    p = Projectile(bulletSprite, x, y, shape)
+    p = Projectile(bulletSprite, x, y, shape, 5)
     p.body:setLinearVelocity((dirX * 480) + initVelX, (dirY * 480) + initVelY)
     p.fixture:setFilterData(CAT_FRIENDLY, CAT_ENEMY, GRP_PROJ)
     return p

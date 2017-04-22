@@ -58,7 +58,7 @@ shaderColors = {
 }
 
 function love.load()
-    love.window.setMode(640, 480, { resizable = true, vsync = true })
+    love.window.setMode(800, 600, { resizable = true, vsync = true })
     local w, h = love.graphics.getDimensions()
 
     love.physics.setMeter(48)
@@ -72,6 +72,10 @@ function love.load()
         left = "left",
         down = "down",
         right = "right",
+        k = "up",
+        h = "left",
+        j = "down",
+        l = "right",
         space = "shoot",
     })
     addActor(player)
