@@ -83,12 +83,13 @@ function Crustal:getZ()
     return self.y
 end
 local function newCrustal(x, y)
+    local img = love.graphics.newImage("imgs/crustal.png")
     return setmetatable({
       x = x or 0,
       y = y or 0,
       targetX = (x or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
       targetY = (y or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
-      sprite = AnimSprite("crustal.png", 24, 32, 30, true, 12, 24)
+      sprite = AnimSprite(img, 24, 32, 30, true, 12, 24)
     }, Crustal)
 end
 setmetatable(Crustal, {

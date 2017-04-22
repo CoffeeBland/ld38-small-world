@@ -12,6 +12,10 @@ function Camera:pos()
   local w, h = love.graphics.getDimensions()
   return self.x - w/2, self.y - h/2
 end
+function Camera:bounds()
+  local w, h = love.graphics.getDimensions()
+  return self.x - w/2, self.x + w/2, self.y - h/2, self.y + h/2
+end
 setmetatable(Camera, {
     __call = function(_, ...) return newCamera(...) end
 })

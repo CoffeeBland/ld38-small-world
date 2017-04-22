@@ -4,28 +4,7 @@ end
 
 AnimSprite = {}
 AnimSprite.__index = AnimSprite
-function AnimSprite:update(dt)
-    if (not self.loop and self.tx + 1 == self.txs) then
-        return
-    end
-    self.time = self.time + 1;
-    while (self.time > self.fpt) do
-        self.time = self.time - self.fpt
-        self.tx = (self.tx + 1) % self.txs
-    end
-end
-function AnimSprite:quad()
-    return self.quads[self.tx][self.ty]
-end
-function AnimSprite:draw(x, y)
-    love.graphics.draw(self.img, self:quad(),
-        x, y,
-        0,
-        (self.flipX and -1) or 1, (self.flipY and -1) or 1,
-        self.x, self.y)
-end
-local function newAnimSprite(name, tw, th, fpt, loop, x, y)
-    local img = love.graphics.newImage("imgs/" .. name)
+local function newAnimSprite(img, tw, th, fpt, loop, x, y)
     local w, h = img:getDimensions()
     local txs = w / tw
     local tys = h / th
@@ -52,3 +31,23 @@ end
 setmetatable(AnimSprite, {
     __call = function(_, ...) return newAnimSprite(...) end
 })
+function AnimSprite:update(dt)
+    if (not self.loop and self.tx + 1 == self.txs) then
+        return
+    end
+    self.time = self.time + 1;
+    while (self.time > self.fpt) do
+        self.time = self.time - self.fpt
+        self.tx = (self.tx + 1) % self.txs
+    end
+end
+function AnimSprite:quad()
+    return self.quads[self.tx][self.ty]
+end
+function AnimSprite:draw(x, y)
+    love.graphics.draw(self.img, self:quad(),
+        x, y,
+        0,
+        (self.flipX and -1) or 1, (self.flipY and -1) or 1,
+        self.x, self.y)
+end

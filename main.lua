@@ -2,6 +2,9 @@ pow = math.pow
 sqrt = math.sqrt
 rand = math.random
 floor = math.floor
+ceil = math.ceil
+min = math.min
+max = math.max
 
 CAT_FRIENDLY = 0x0002
 CAT_ENEMY = 0x0004
@@ -13,8 +16,10 @@ require('sprite')
 require('projectile')
 require('actor')
 require('crust')
+require('environment')
 
 world = nil
+environment = nil
 player = nil
 crustal = nil
 crustcle = nil
@@ -52,7 +57,8 @@ function love.load()
 
     camera = Camera()
 
-    local sprite = AnimSprite("wallabi.png", 48, 48, 4, true, 24, 32)
+    local wallabi = love.graphics.newImage("imgs/wallabi.png")
+    local sprite = AnimSprite(wallabi, 48, 48, 4, true, 24, 32)
     player = Player(sprite, {
         up = "up",
         left = "left",
@@ -61,6 +67,9 @@ function love.load()
         space = "shoot",
     })
     addActor(player)
+
+    environment = Environment(256)
+    addActor(environment)
 
     crustal = Crustal()
     crustcle = Crustcle(192)

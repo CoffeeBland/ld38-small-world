@@ -26,7 +26,8 @@ setmetatable(Projectile, {
 })
 
 
-local bulletSprite = AnimSprite("bullet.png", 8, 8)
+local bulletImg = love.graphics.newImage("imgs/bullet.png")
+local bulletSprite = AnimSprite(bulletImg, 8, 8)
 
 Bullet = function(x, y, dirX, dirY, initVelX, initVelY)
     local shape = love.physics.newCircleShape(0.16666)
