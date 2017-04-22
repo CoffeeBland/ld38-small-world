@@ -1,3 +1,7 @@
+function dst(x, y)
+    return math.sqrt(math.pow(x, 2) + math.pow(y, 2))
+end
+
 AnimSprite = {}
 AnimSprite.__index = AnimSprite
 function AnimSprite:update(dt)
@@ -30,7 +34,7 @@ local function newAnimSprite(name, tw, th, fpt, loop, x, y)
         end
     end
     return setmetatable({
-        x = x or -tw/2, y = y or -th/2,
+        x = x or tw/2, y = y or th/2,
         tx = 0, ty = 0,
         txs = txs, tys = tys,
         tw = tw, th = th,
@@ -53,7 +57,8 @@ local function newPlayer(sprite, controls, body)
         sprite = sprite,
         controls = controls,
         body = body,
-        speed = 0.1
+        speed = 0.1,
+        ty = 0
     }, Player)
 end
 function Player:up(dt)
@@ -76,18 +81,21 @@ function Player:update(dt)
             self[c](self, dt)
         end
     end
-    local len = math.sqrt(math.pow(self.movementX, 2) + math.pow(self.movementY, 2))
+    local len = dst(self.movementX, self.movementY)
     if (len ~= 0) then
         self.movementX = self.movementX / len
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(
             self.movementX * self.speed, self.movementY * self.speed)
 
-        self.sprite.ty =
-            (self.movementX ~= 0 and 2) or 0
+        self.ty = (self.movementX ~= 0 and 3) or 0
         self.sprite.flipX = self.movementX < 0
-        self.sprite.flipY = self.movementY < 0
+        self.sprite.flipY = self.movementX == 0 and self.movementY < 0
+        self.sprite.ty = self.ty
+    else
+        self.sprite.ty = self.ty + 1
     end
+    self.sprite.fpt = 10 / (dst(self.body:getLinearVelocity())/600 + 1)
     self.sprite:update(dt)
 end
 function Player:pos()

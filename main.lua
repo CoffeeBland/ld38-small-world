@@ -61,7 +61,7 @@ function love.load()
     love.physics.setMeter(48)
     world = love.physics.newWorld(0, 0, true)
 
-    local sprite = AnimSprite("wallabi.png", 48, 48, 10, 24, 24)
+    local sprite = AnimSprite("wallabi.png", 48, 48, 4)
     local controls = {
         up = "up",
         left = "left",
