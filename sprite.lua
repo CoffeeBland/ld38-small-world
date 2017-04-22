@@ -18,8 +18,11 @@ function AnimSprite:quad()
     return self.quads[self.tx][self.ty]
 end
 function AnimSprite:draw(x, y)
-    love.graphics.draw(self.img, self:quad(), x, y,
-        0, (self.flipX and -1) or 1, (self.flipY and -1) or 1, self.x, self.y)
+    love.graphics.draw(self.img, self:quad(),
+        x, y,
+        0,
+        (self.flipX and -1) or 1, (self.flipY and -1) or 1,
+        self.x, self.y)
 end
 local function newAnimSprite(name, tw, th, fpt, loop, x, y)
     local img = love.graphics.newImage("imgs/" .. name)

@@ -16,6 +16,9 @@ function Projectile:draw(camera)
     local cx, cy = camera:pos()
     self.sprite:draw(self.body:getX() - cx, self.body:getY() - cy)
 end
+function Projectile:getZ()
+    return self.body:getY()
+end
 function Projectile:update(dt)
 end
 setmetatable(Projectile, {

@@ -34,7 +34,7 @@ function Player:right(dt)
     self.movementX = self.movementX + 1
 end
 function Player:shoot(dt)
-    addProjectile(Bullet(self.x, self.y, self.lastMovementX, self.lastMovementY))
+    addActor(Bullet(self.x, self.y, self.lastMovementX, self.lastMovementY))
 end
 function Player:update(dt)
     self.lastMovementX = self.movementX > 0 and self.movementX or self.lastMovementX
@@ -52,9 +52,8 @@ function Player:update(dt)
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(self.movementX * self.speed, self.movementY * self.speed)
 
-        self.ty = (self.movementX ~= 0 and 3) or 0
+        self.ty = (self.movementX ~= 0 and 6) or (self.movementY < 0 and 3) or 0
         self.sprite.flipX = self.movementX < 0
-        self.sprite.flipY = self.movementX == 0 and self.movementY < 0
         self.sprite.ty = self.ty
     else
         self.sprite.ty = self.ty + 1
@@ -64,6 +63,9 @@ function Player:update(dt)
 end
 function Player:pos()
     return self.body:getX(), self.body:getY()
+end
+function Player:getZ()
+    return self.body:getY()
 end
 function Player:draw(camera)
     local cx, cy = camera:pos()

@@ -18,9 +18,9 @@ function crustalCircle()
     love.graphics.polygon("fill", crustcle:poly(camera))
 end
 
-projectiles = {}
-function addProjectile(p)
-    table.insert(projectiles, p)
+actors = {}
+function addActor(p)
+    table.insert(actors, p)
 end
 
 shaderT = 0
@@ -47,7 +47,7 @@ function love.load()
 
     camera = Camera()
 
-    local sprite = AnimSprite("wallabi.png", 48, 48, 4)
+    local sprite = AnimSprite("wallabi.png", 48, 48, 4, true, 24, 32)
     player = Player(sprite, {
         up = "up",
         left = "left",
@@ -55,9 +55,11 @@ function love.load()
         right = "right",
         space = "shoot",
     })
+    addActor(player)
 
     crustal = Crustal()
     crustcle = Crustcle(192)
+    addActor(crustal)
 
     shader = love.graphics.newShader[[
         uniform float time;
@@ -82,6 +84,9 @@ function love.load()
     ]]
 end
 
+function zSort(a, b)
+    return (b:getZ() - a:getZ()) > 0
+end
 function love.draw()
     local x, y = love.graphics.getDimensions()
 
@@ -97,11 +102,9 @@ function love.draw()
     --love.graphics.setShader()
     love.graphics.setStencilTest()
 
-    crustal:draw(camera)
-    player:draw(camera)
-
-    for i, p in pairs(projectiles) do
-        p:draw(camera)
+    table.sort(actors, zSort)
+    for i, a in pairs(actors) do
+        a:draw(camera)
     end
 end
 function love.update(dt)
@@ -110,9 +113,14 @@ function love.update(dt)
     shader:send("pts", unpack(shaderPts))
     shader:send("colors", unpack(shaderColors))
 
-    crustal:update(dt)
     crustcle:update(dt)
-    player:update(dt)
+    for i = #actors, 1, -1 do
+        local a = actors[i]
+        a:update(dt)
+        if (a.shouldRemove) then
+            table.remove(actors, i)
+        end
+    end
     world:update(dt)
 
     local px, py = player:pos()
