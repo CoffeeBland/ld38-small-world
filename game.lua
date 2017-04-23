@@ -63,6 +63,7 @@ end
 function shakeSort(a, b)
     return b[1] - a[1] > 0
 end
+-- duraction: frames, intensity: pixel amount
 function shake(duration, intensity)
     table.insert(shakes, { duration, intensity })
     table.sort(shakes, shakeSort)

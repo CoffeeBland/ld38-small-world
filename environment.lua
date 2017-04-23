@@ -120,8 +120,8 @@ local function newEnvironment(chunkSize)
 
         ttSpawnBasic = 1,
         spawnRateBasic = 1/3,
-        ttSpawnHealth = 60*1,
-        spawnRateHealth = 1/3,
+        ttSpawnHealth = 60*10,
+        spawnRateHealth = 1/10,
     }, Environment)
 end
 setmetatable(Environment, {
@@ -162,7 +162,7 @@ function Environment:update(dt)
     end
 
     if self.ttSpawnHealth <= 0 then
-        local radius = rand(100) + 200
+        local radius = rand(100) + 75
         local angle = rand() * 2 * pi
         local x = camera.x + radius*cos(angle)
         local y = camera.y + radius*sin(angle)
@@ -171,5 +171,5 @@ function Environment:update(dt)
     end
 
     self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3) -- Max 3 basic per second
-    self.spawnRateHealth = min(self.spawnRateBasic + 0.00004, 1/5) -- Max 1 health per 5 sec
+    self.spawnRateHealth = min(self.spawnRateBasic + 0.0002, 1/5) -- Max 1 health per 5 sec
 end
