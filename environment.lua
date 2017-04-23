@@ -119,8 +119,11 @@ local function newEnvironment(chunkSize)
     return setmetatable({
         chunkSize = chunkSize,
         chunks = {},
+
         ttSpawnBasic = 1,
         spawnRateBasic = 1/3,
+        ttSpawnHealth = 60*1,
+        spawnRateHealth = 1/3,
     }, Environment)
 end
 setmetatable(Environment, {
@@ -149,6 +152,7 @@ function Environment:draw(camera)
 end
 function Environment:update(dt)
     self.ttSpawnBasic = self.ttSpawnBasic - 1
+    self.ttSpawnHealth = self.ttSpawnHealth - 1
 
     if self.ttSpawnBasic <= 0 then
         local radius = rand(100) + 600
@@ -159,5 +163,15 @@ function Environment:update(dt)
         self.ttSpawnBasic = 60/self.spawnRateBasic
     end
 
-    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3)
+    if self.ttSpawnHealth <= 0 then
+        local radius = rand(100) + 200
+        local angle = rand() * 2 * pi
+        local x = camera.x + radius*cos(angle)
+        local y = camera.y + radius*sin(angle)
+        addActor(ItemHealth(x, y))
+        self.ttSpawnHealth = 60/self.spawnRateHealth
+    end
+
+    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3) -- Max 3 basic per second
+    self.spawnRateHealth = min(self.spawnRateBasic + 0.00004, 1/5) -- Max 1 health per 5 sec
 end

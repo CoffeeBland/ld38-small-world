@@ -1,6 +1,6 @@
 Projectile = {}
 Projectile.__index = Projectile
-local function newProjectile(sprite, x, y, shape, ttl)
+local function newProjectile(sprite, x, y, shape, ttl, helpText)
     local body = love.physics.newBody(world, x, y, "kinematic")
     body:setFixedRotation(true)
     local obj = setmetatable({
@@ -8,6 +8,7 @@ local function newProjectile(sprite, x, y, shape, ttl)
         body = body,
         shape = shape,
         ttl = ttl,
+        helpText = helpText,
     }, Projectile)
     if shape then
         obj.fixture = love.physics.newFixture(body, shape, 1)
@@ -20,7 +21,16 @@ setmetatable(Projectile, {
 })
 function Projectile:draw(camera)
     local cx, cy = camera:pos()
-    self.sprite:draw(self.body:getX() - cx, self.body:getY() - cy)
+    local x, y = self.body:getX(), self.body:getY()
+    self.sprite:draw(x - cx, y - cy)
+    if self.helpText then
+        local textW = smallFont:getWidth(self.helpText)
+        love.graphics.setColor(0, 0, 0, 128)
+        love.graphics.rectangle("fill", x - cx - (textW / 2) - 3, y - cy - self.sprite.th, textW + 6, 16)
+        love.graphics.setFont(smallFont)
+        love.graphics.setColor(255, 255, 230)
+        love.graphics.print(self.helpText, x - cx - (textW / 2), y - cy - self.sprite.th)
+    end
 end
 function Projectile:getZ()
     return self.body:getY()
@@ -41,24 +51,41 @@ end
 
 
 local bulletImg = love.graphics.newImage("imgs/bullet.png")
+function bulletCollide(self, other)
+    if getmetatable(other) == Enemy then
+        self.shouldRemove = true
+        other.shouldRemove = true
+    end
+end
+function bulletDestroy(self)
+    addActor(BlueBoom(self:pos()))
+    removeBody(self)
+end
 function Bullet(x, y, dirX, dirY)
     local shape = love.physics.newCircleShape(8)
     p = Projectile(AnimSprite(bulletImg, 12, 12, 2), x, y, shape, 5 * 60)
     p.body:setLinearVelocity(dirX * 480, dirY * 480)
     --p.fixture:setFilterData(CAT_FRIENDLY, 0, 0)
     p.fixture:setSensor(true)
+    p.collide = bulletCollide
+    p.destroy = bulletDestroy
+    return p
+end
 
-    p.collide = function(self, other)
-        if getmetatable(other) == Enemy then
-            self.shouldRemove = true
-            other.shouldRemove = true
-        end
+local itemHealthImg = love.graphics.newImage("imgs/item_health.png")
+local itemHealthSprite = AnimSprite(itemHealthImg, 32, 32)
+function itemHealthCollide(self, other)
+    if getmetatable(other) == Player then
+        self.shouldRemove = true
+        life = life + 10
     end
-    p.destroy = function(self)
-        addActor(BlueBoom(self:pos()))
-        removeBody(self)
-    end
-
+end
+function ItemHealth(x, y)
+    local shape = love.physics.newCircleShape(16)
+    local ttl = 8 * 60 -- Disapear after 8 sec
+    p = Projectile(itemHealthSprite, x, y, shape, ttl, "Health")
+    p.fixture:setSensor(true)
+    p.collide = itemHealthCollide
     return p
 end
 

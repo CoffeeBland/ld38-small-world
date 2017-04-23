@@ -8,7 +8,7 @@ local function newPlayer(sprite, controls, x, y)
     body:setLinearDamping(10)
     fixture:setCategory(CAT_FRIENDLY)
 
-    return setmetatable({
+    local obj = setmetatable({
         sprite = sprite,
         controls = controls,
         body = body,
@@ -22,6 +22,8 @@ local function newPlayer(sprite, controls, x, y)
         keys = {},
         sinceShot = 0,
     }, Player)
+    fixture:setUserData(obj)
+    return obj
 end
 setmetatable(Player, {
     __call = function(_, ...) return newPlayer(...) end
