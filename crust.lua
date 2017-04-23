@@ -1,10 +1,5 @@
 Cruspt = {}
 Cruspt.__index = Cruspt
-function Cruspt:update(dt)
-    self.t = self.t + self.dt
-    self.r = self.sR + math.sin(self.t) * self.rBounds
-    self.a = self.sA + math.sin(self.t) * self.aBounds
-end
 local function newCruspt(r, rBounds, a, aBounds)
     local dt = (math.random() + 2) * 2 * math.pi / 360
     return setmetatable({
@@ -18,6 +13,11 @@ end
 setmetatable(Cruspt, {
     __call = function(_, ...) return newCruspt(...) end
 })
+function Cruspt:update(dt)
+    self.t = self.t + self.dt
+    self.r = self.sR + math.sin(self.t) * self.rBounds
+    self.a = self.sA + math.sin(self.t) * self.aBounds
+end
 
 
 Crustcle = {}
@@ -70,15 +70,24 @@ Crustal = {}
 Crustal.__index = Crustal
 local function newCrustal(x, y, size)
     local img = love.graphics.newImage("imgs/crustal.png")
-    return setmetatable({
-      x = x or 0,
-      y = y or 0,
-      lastSparkle = 0,
-      targetX = (x or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
-      targetY = (y or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
-      sprite = AnimSprite(img, 24, 32, 30, true, 12, 24),
-      size = size,
+    local body = love.physics.newBody(world, x, y, "dynamic")
+    local shape = love.physics.newCircleShape(12)
+    local fixture = love.physics.newFixture(body, shape, 1)
+    obj = setmetatable({
+        body = body,
+        shape = shape,
+        fixture, fixture,
+        x = x or 0,
+        y = y or 0,
+        lastSparkle = 0,
+        targetX = (x or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
+        targetY = (y or 0) + ((rand()-0.5) * CRUSTAL_TARGET_SIZE),
+        sprite = AnimSprite(img, 24, 32, 30, true, 12, 24),
+        size = size,
     }, Crustal)
+    fixture:setCategory(CAT_FRIENDLY)
+    fixture:setUserData(obj)
+    return obj
 end
 setmetatable(Crustal, {
     __call = function(_, ...) return newCrustal(...) end
@@ -121,5 +130,5 @@ function Crustal:getZ()
     return self.y
 end
 function Crustal:pos()
-  return self.x, self.y
+    return self.x, self.y
 end
