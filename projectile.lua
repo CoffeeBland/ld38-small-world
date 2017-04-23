@@ -73,7 +73,7 @@ end
 local redBoomImg = love.graphics.newImage("imgs/red-boom.png")
 function redExplosionCollide(self, other)
     if getmetatable(other) == Player then
-        life = life - 10
+        life = life - 20
         shake(8, 8)
     end
 end
@@ -94,13 +94,13 @@ local itemHealthSprite = AnimSprite(itemHealthImg, 32, 32)
 function itemHealthCollide(self, other)
     if getmetatable(other) == Player then
         self.shouldRemove = true
-        life = life + 10
+        life = min(life + 20, initialLife)
     end
 end
 function ItemHealth(x, y)
     local shape = love.physics.newCircleShape(16)
     local ttl = 8 * 60 -- Disapear after 8 sec
-    p = Projectile(itemHealthSprite, x, y, shape, ttl, "Health")
+    p = Projectile(itemHealthSprite, x, y, shape, ttl)
     p.fixture:setSensor(true)
     p.collide = itemHealthCollide
     return p
@@ -117,7 +117,7 @@ end
 function ItemSpecialWave(x, y)
     local shape = love.physics.newCircleShape(16)
     local ttl = 4 * 60 -- Disapear after 4 sec
-    p = Projectile(itemSpecialWaveSprite, x, y, shape, ttl, "Wave Special")
+    p = Projectile(itemSpecialWaveSprite, x, y, shape, ttl)
     p.fixture:setSensor(true)
     p.collide = itemSpecialWaveCollide
     return p

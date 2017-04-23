@@ -231,7 +231,7 @@ blob = {
         local pX, pY = player:pos()
         if self.attacking <= 0 then
             local dst2P = dst(pX - x, pY - y)
-            if dst2P < 128 then
+            if dst2P < 196 then
                 self.attacking = 60
                 self.attackX = pX
                 self.attackY = pY

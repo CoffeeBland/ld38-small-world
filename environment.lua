@@ -125,7 +125,7 @@ local function newEnvironment(chunkSize)
         spawnRateBlob = 1/3,
 
         ttSpawnHealth = 60*10,
-        spawnRateHealth = 1/10,
+        spawnRateHealth = 1/16,
         ttSpawnSpecialWave = 60*24,
         spawnRateSpecialWave = 1/18,
     }, Environment)
@@ -192,6 +192,6 @@ function Environment:update(dt)
 
     self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3) -- Max 3 basic per second
     self.spawnRateBlob = min(self.spawnRateBlob + 0.0004, 3) -- Max 3 blob per second
-    self.spawnRateHealth = min(self.spawnRateHealth + 0.0002, 1/5) -- Max 1 health per 5 sec
+    self.spawnRateHealth = min(self.spawnRateHealth + 0.0001, 1/8) -- Max 1 health per 8 sec
     self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0002, 1/5) -- Max 1 special wave per 5 sec
 end
