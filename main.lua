@@ -27,11 +27,14 @@ end
 function noop() end
 
 require('game')
-state = 'title'
+state = 'splash'
 monoFont = nil
 smallFont = nil
 mediumFont = nil
 largeFont = nil
+coffeeBlandLogoImg = love.graphics.newImage("imgs/coffeebland.png")
+splashFrames = 480
+splashFrame = 0
 
 titleText = 'CRUSTAL'
 promptText = 'PRESS SPACE OR ENTER TO BEGIN'
@@ -54,6 +57,15 @@ function love.load()
 end
 
 function love.update(dt)
+    if state == "splash" then
+        splashFrame = splashFrame + 1
+
+        -- wait 6 seconds
+        if splashFrame >= splashFrames then
+            state = "title"
+        end
+    end
+
     if state == 'game' then
         game.update(dt)
     end
@@ -88,10 +100,32 @@ function shadowRender(text, x, y, w, s)
     love.graphics.printf(text, x, y, w, 'center')
 end
 function love.draw()
+    if state == 'splash' then
+        local w, h = love.graphics.getDimensions()
+        love.graphics.setColor(255, 255, 255, 230)
+        love.graphics.rectangle('fill', 0, 0, w, h)
+        local logoX, logoY = coffeeBlandLogoImg:getDimensions()
+        love.graphics.draw(coffeeBlandLogoImg, w/2 - logoX/2, h/2 - logoY/2)
+
+        -- fade in
+        local alpha = 255
+        if splashFrame < 120 then
+            alpha = 255 - ((splashFrame / 120) * 255)
+        elseif splashFrame < (splashFrames-120) then
+            alpha = 0
+        else
+            alpha = ((splashFrame-(splashFrames-120)) / 120) * 255
+        end
+        print(alpha)
+        love.graphics.setColor(0, 0, 0, alpha)
+        love.graphics.rectangle('fill', 0, 0, w, h)
+        return
+    end
+
     game.draw()
     if state ~= 'game' then
         local x, y = love.graphics.getDimensions()
-        love.graphics.setColor(0, 0, 0, 200)
+        love.graphics.setColor(0, 0, 0, 170)
         love.graphics.rectangle('fill', 0, 0, x, y)
 
         if state == 'title' then
