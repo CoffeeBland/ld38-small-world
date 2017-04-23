@@ -35,7 +35,17 @@ player = nil
 crustal = nil
 crustcle = nil
 
-playerImg = love.graphics.newImage("imgs/wallabi.png")
+playerImg = love.graphics.newImage("imgs/tripod.png")
+function tripodMovement(self, movX, movY, speedX, speedY, sinceShot)
+    local moving = movX == 0 and movY == 0
+    --if self.ty == 1 and moving then
+    --    self.tx = 1
+    --    self.time = 0
+    --end
+    self.ty = (sinceShot < 20 and 2) or (moving and 1) or 0
+    self.fpt = 20 / (dst(speedX, speedY) / 600 + 1)
+end
+
 enemyBasicImg = love.graphics.newImage("imgs/enemy_basic.png")
 function wallabiMovement(self, movX, movY, speedX, speedY)
     if movX ~= 0 or movY ~= 0 then
@@ -95,8 +105,8 @@ function love.load()
 
     camera = Camera()
 
-    local sprite = AnimSprite(playerImg, 48, 48, 4, true, 24, 32)
-    sprite.movement = wallabiMovement
+    local sprite = AnimSprite(playerImg, 48, 64, 4, true, 24, 56)
+    sprite.movement = tripodMovement
     player = Player(sprite, {
         up = "up",
         left = "left",

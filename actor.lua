@@ -20,6 +20,7 @@ local function newPlayer(sprite, controls)
         lastMovementX = 1,
         lastMovementY = 0,
         keys = {},
+        sinceShot = 0,
     }, Player)
 end
 setmetatable(Player, {
@@ -47,10 +48,12 @@ function Player:begin_shoot(dt)
         self.lastMovementX, self.lastMovementY,
         velX, velY
     ))
+    self.sinceShot = 0
 end
 function Player:update(dt)
     self.movementX = 0
     self.movementY = 0
+    self.sinceShot = self.sinceShot + 1
     for k, c in pairs(self.controls) do
         if love.keyboard.isDown(k) then
             if not self.keys[k] then
@@ -73,7 +76,8 @@ function Player:update(dt)
         self.lastMovementX = self.movementX
         self.lastMovementY = self.movementY
     end
-    self.sprite:movement(self.movementX, self.movementY, self.body:getLinearVelocity())
+    local mx, my = self.body:getLinearVelocity()
+    self.sprite:movement(self.movementX, self.movementY, mx, my, self.sinceShot)
     self.sprite:update(dt)
 end
 function Player:pos()
