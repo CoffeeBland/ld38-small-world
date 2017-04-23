@@ -41,11 +41,17 @@ function AnimSprite:update(dt)
         self.tx = (self.tx + 1) % self.txs
     end
 end
-function AnimSprite:quad()
-    return self.quads[self.tx][self.ty]
-end
 function AnimSprite:draw(x, y)
-    love.graphics.draw(self.img, self:quad(),
+    love.graphics.draw(self.img,
+        self.quads[self.tx][self.ty],
+        x, y,
+        0,
+        (self.flipX and -1) or 1, (self.flipY and -1) or 1,
+        self.x, self.y)
+end
+function AnimSprite:drawSpecific(x, y, tx, ty)
+    love.graphics.draw(self.img,
+        self.quads[tx][ty],
         x, y,
         0,
         (self.flipX and -1) or 1, (self.flipY and -1) or 1,
