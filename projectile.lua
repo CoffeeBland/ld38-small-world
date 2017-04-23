@@ -25,10 +25,8 @@ function Projectile:draw(camera)
     self.sprite:draw(x - cx, y - cy)
     if self.helpText then
         local textW = smallFont:getWidth(self.helpText)
-        love.graphics.setColor(0, 0, 0, 128)
-        love.graphics.rectangle("fill", x - cx - (textW / 2) - 3, y - cy - self.sprite.th, textW + 6, 16)
         love.graphics.setFont(smallFont)
-        love.graphics.setColor(255, 255, 230)
+        love.graphics.setColor(255, 255, 230, 160)
         love.graphics.print(self.helpText, x - cx - (textW / 2), y - cy - self.sprite.th)
     end
 end

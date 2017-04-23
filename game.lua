@@ -144,7 +144,6 @@ function game.draw()
     love.graphics.setStencilTest("greater", 0)
     love.graphics.setColor(86, 186, 112)
     love.graphics.rectangle("fill", 0, 0, x, y)
-    love.graphics.setColor(255, 255, 255)
     love.graphics.setStencilTest()
 
     table.sort(actors, zSort)

@@ -76,11 +76,12 @@ function love.keypressed(key)
     end
 end
 
-function shadowRender(text, x, y, w)
+function shadowRender(text, x, y, w, s)
+    s = s or 2
     love.graphics.setColor(0, 0, 255)
-    love.graphics.printf(text, x - 2, y - 2, w, 'center')
+    love.graphics.printf(text, x - s, y - s, w, 'center')
     love.graphics.setColor(255, 0, 200)
-    love.graphics.printf(text, x + 2, y + 2, w, 'center')
+    love.graphics.printf(text, x + s, y + s, w, 'center')
     love.graphics.setColor(255, 255, 255)
     love.graphics.printf(text, x, y, w, 'center')
 end
@@ -90,7 +91,6 @@ function love.draw()
         local x, y = love.graphics.getDimensions()
         love.graphics.setColor(0, 0, 0, 200)
         love.graphics.rectangle('fill', 0, 0, x, y)
-        love.graphics.setColor(255, 255, 255)
 
         if state == 'title' then
             love.graphics.setFont(largeFont)
