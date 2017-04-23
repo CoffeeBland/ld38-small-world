@@ -75,6 +75,10 @@ function love.keypressed(key)
         if key == 'escape' then
             state = 'pause'
         end
+    elseif state == 'splash' then
+        if key == 'space' or key == 'return' then
+            state = 'title'
+        end
     elseif state == 'title' or state == 'bananas' then
         if key == 'escape' then
             love.event.quit()
@@ -116,7 +120,6 @@ function love.draw()
         else
             alpha = ((splashFrame-(splashFrames-120)) / 120) * 255
         end
-        print(alpha)
         love.graphics.setColor(0, 0, 0, alpha)
         love.graphics.rectangle('fill', 0, 0, w, h)
         return

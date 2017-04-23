@@ -18,6 +18,8 @@ of the game you can download and run.
 
 ![Game](https://raw.githubusercontent.com/CoffeeBland/ld38-small-world/master/support/screen_game.png)
 
+![Game over](https://raw.githubusercontent.com/CoffeeBland/ld38-small-world/master/support/screen_failure.png)
+
 ## Building
 
 ```
@@ -33,5 +35,3 @@ make build-all # Create a crustal.love, crustal.app and crustal-win.zip for dist
 MIT. See `LICENSE` file.
 
 _(LOVE itself and it's dependencies have additional licenses.)_
-
-
