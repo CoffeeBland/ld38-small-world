@@ -15,46 +15,54 @@ local function newPlayer(sprite, controls)
         shape = shape,
         fixture = fixture,
         speed = 10,
-        lastShoot = 0,
         movementX = 0,
         movementY = 0,
         lastMovementX = 1,
         lastMovementY = 0,
+        keys = {},
     }, Player)
 end
 setmetatable(Player, {
     __call = function(_, ...) return newPlayer(...) end
 })
-function Player:up(dt)
+function Player:hold_up(dt)
     self.movementY = self.movementY - 1
 end
-function Player:down(dt)
+function Player:hold_down(dt)
     self.movementY = self.movementY + 1
 end
-function Player:left(dt)
+function Player:hold_left(dt)
     self.movementX = self.movementX - 1
 end
-function Player:right(dt)
+function Player:hold_right(dt)
     self.movementX = self.movementX + 1
 end
-function Player:shoot(dt)
-    local t = love.timer.getTime()
-    if t - self.lastShoot > 0.25 then
-        local velX, velY = self.body:getLinearVelocity()
-        addActor(Bullet(
-            self.body:getX(), self.body:getY(),
-            self.lastMovementX, self.lastMovementY,
-            velX, velY
-        ))
-        self.lastShoot = t
+function Player:begin_shoot(dt)
+    if self.shooting then
+        return
     end
+    local velX, velY = self.body:getLinearVelocity()
+    addActor(Bullet(
+        self.body:getX(), self.body:getY(),
+        self.lastMovementX, self.lastMovementY,
+        velX, velY
+    ))
 end
 function Player:update(dt)
     self.movementX = 0
     self.movementY = 0
     for k, c in pairs(self.controls) do
         if love.keyboard.isDown(k) then
-            self[c](self, dt)
+            if not self.keys[k] then
+                (self['begin_' .. c] or noop)(self, dt)
+                self.keys[k] = true
+            end
+            (self['hold_' .. c] or noop)(self, dt)
+        else
+            if self.keys[k] then
+                (self['end_' .. c] or noop)(self, dt)
+                self.keys[k] = false
+            end
         end
     end
     local len = dst(self.movementX, self.movementY)

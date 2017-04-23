@@ -3,18 +3,16 @@ Projectile.__index = Projectile
 local function newProjectile(sprite, x, y, shape, ttl)
     local body = love.physics.newBody(world, x, y, "kinematic")
     body:setFixedRotation(true)
-    local fixture = nil
-    if shape then
-        fixture = love.physics.newFixture(body, shape, 1)
-    end
     local obj = setmetatable({
         sprite = sprite,
         body = body,
         shape = shape,
-        fixture = fixture,
         ttl = ttl,
     }, Projectile)
-    fixture:setUserData(obj)
+    if shape then
+        obj.fixture = love.physics.newFixture(body, shape, 1)
+        obj.fixture:setUserData(obj)
+    end
     return obj
 end
 setmetatable(Projectile, {

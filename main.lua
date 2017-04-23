@@ -14,6 +14,7 @@ max = math.max
 function dst(x, y)
     return sqrt(pow(x, 2) + pow(y, 2))
 end
+function noop() end
 
 PHYS_UNIT = 48
 CAT_FRIENDLY = 0x0002
