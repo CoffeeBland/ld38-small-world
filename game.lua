@@ -92,11 +92,10 @@ function game.load()
         left = "left",
         down = "down",
         right = "right",
-        k = "up",
-        h = "left",
-        j = "down",
-        l = "right",
-        space = "shoot",
+        w = "shoot",
+        a = "shoot",
+        s = "shoot",
+        d = "shoot",
     }, (rand() - 0.5) * 128, (rand() - 0.5) * 128)
     addActor(player)
 
