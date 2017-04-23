@@ -5,7 +5,7 @@ build:
 	zip -9 -r crustal.love main.lua *.lua imgs snds *.ttf
 
 build-windows:
-	./ensure-win.sh
+	./support/ensure-win.sh
 	zip -9 -r crustal.love main.lua *.lua imgs snds *.ttf
 	mkdir -p crustal
 	cat love-0.10.2-win32/love.exe crustal.love > crustal/crustal.exe
