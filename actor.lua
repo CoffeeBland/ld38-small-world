@@ -17,10 +17,9 @@ local function newPlayer(sprite, controls, x, y)
         speed = 10,
         movementX = 0,
         movementY = 0,
-        lastMovementX = 1,
-        lastMovementY = 0,
         keys = {},
         sinceShot = 0,
+        outsideCrustalFor = 0,
     }, Player)
     fixture:setUserData(obj)
     return obj
@@ -60,6 +59,7 @@ function Player:update(dt)
     self.movementX = 0
     self.movementY = 0
     self.sinceShot = self.sinceShot + 1
+
     for k, c in pairs(self.controls) do
         if love.keyboard.isDown(k) then
             if not self.keys[k] then
@@ -74,17 +74,27 @@ function Player:update(dt)
             end
         end
     end
+
     local len = dst(self.movementX, self.movementY)
     if (len ~= 0) then
         self.movementX = self.movementX / len
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(self.movementX * self.speed, self.movementY * self.speed)
-        self.lastMovementX = self.movementX
-        self.lastMovementY = self.movementY
     end
+
     local mx, my = self.body:getLinearVelocity()
     self.sprite:movement(self.movementX, self.movementY, mx, my, self.sinceShot)
     self.sprite:update(dt)
+
+    local x, y = self:pos()
+    if not crustal:inside(x, y) then
+        self.outsideCrustalFor = self.outsideCrustalFor + 1
+        shake(8, 8)
+        -- minus 3 life per s. accelerating up to 60 per s. after 10 s.
+        life = life - (self.outsideCrustalFor * (0.95 / 600) + 0.05)
+    else
+        self.outsideCrustalFor = 0
+    end
 end
 function Player:pos()
     return self.body:getX(), self.body:getY()
