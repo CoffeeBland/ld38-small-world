@@ -140,6 +140,13 @@ function Enemy:update(dt)
     self.sprite:movement(velX, velY, self.body:getLinearVelocity())
     self.sprite:update(dt)
 end
+function Enemy:collide(other)
+    print(getmetatable(other), Crustal)
+    if getmetatable(other) == Crustal then
+        life = life - 3
+        self.shouldRemove = true
+    end
+end
 
 
 EnemyBasic = function(x, y)

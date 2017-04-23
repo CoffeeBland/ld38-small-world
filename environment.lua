@@ -116,8 +116,8 @@ local function newEnvironment(chunkSize)
     return setmetatable({
         chunkSize = chunkSize,
         chunks = {},
-        ttSpawnBasic = 240,
-        spawnRateBasic = 240,
+        ttSpawnBasic = 1,
+        spawnRateBasic = 480,
     }, Environment)
 end
 setmetatable(Environment, {
@@ -148,15 +148,15 @@ function Environment:update(dt)
     self.ttSpawnBasic = self.ttSpawnBasic - 1
 
     if self.ttSpawnBasic <= 0 then
-        local radius = rand(100) + 500
+        local radius = rand(100) + 600
         local angle = rand() * 2 * pi
         local x = camera.x + radius*cos(angle)
         local y = camera.y + radius*sin(angle)
         addActor(EnemyBasic(x, y))
-        self.ttSpawnBasic = floor(self.spawnRateBasic)
+        self.ttSpawnBasic = ceil(self.spawnRateBasic)
     end
 
-    self.spawnRateBasic = self.spawnRateBasic - 0.1
+    self.spawnRateBasic = max(self.spawnRateBasic - 0.05, 60)
 end
 function Environment:getZ()
     return 0

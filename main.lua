@@ -34,6 +34,8 @@ environment = nil
 player = nil
 crustal = nil
 crustcle = nil
+initialLife = 100
+life = 100
 
 playerImg = love.graphics.newImage("imgs/tripod.png")
 function tripodMovement(self, movX, movY, speedX, speedY, sinceShot)
@@ -159,7 +161,6 @@ function love.draw()
     love.graphics.rectangle("fill", 0, 0, x, y)
 
     love.graphics.stencil(crustalCircle, "invert", 1)
-
     love.graphics.setStencilTest("greater", 0)
     love.graphics.setColor(86, 186, 112)
     love.graphics.rectangle("fill", 0, 0, x, y)
@@ -170,9 +171,22 @@ function love.draw()
     for i, a in pairs(actors) do
         a:draw(camera)
     end
+
+    -- Life bar
+    love.graphics.setShader()
+    love.graphics.setColor(0, 135, 105)
+    love.graphics.rectangle("fill", 30, 34, initialLife*2, 16)
+    love.graphics.setColor(0, 198, 154)
+    love.graphics.rectangle("fill", 32, 32, life*2, 16)
+    love.graphics.setColor(0, 90, 70)
+    love.graphics.print(tostring(ceil(life)), 36, 34)
 end
 function love.update(dt)
     shaderT = shaderT + shaderDt
+
+    if life <= 0 then
+        love.window.close()
+    end
 
     crustcle:update(dt)
     for i = #actors, 1, -1 do
