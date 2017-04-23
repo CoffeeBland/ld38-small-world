@@ -14,6 +14,9 @@ max = math.max
 function dst(x, y)
     return sqrt(pow(x, 2) + pow(y, 2))
 end
+function dst2(x, y)
+    return pow(x, 2) + pow(y, 2)
+end
 function noop() end
 
 PHYS_UNIT = 48
@@ -33,7 +36,6 @@ world = nil
 environment = nil
 player = nil
 crustal = nil
-crustcle = nil
 initialLife = 100
 life = 100
 
@@ -61,7 +63,7 @@ function wallabiMovement(self, movX, movY, speedX, speedY)
 end
 
 function crustalCircle()
-    love.graphics.polygon("fill", crustcle:poly(camera))
+    love.graphics.polygon("fill", crustal:poly(camera))
 end
 
 actors = {}
@@ -125,8 +127,7 @@ function love.load()
     environment = Environment(256)
     addActor(environment)
 
-    crustal = Crustal(0, 0, 192)
-    crustcle = Crustcle(192)
+    crustal = Crustal(192)
     addActor(crustal)
 
     shader = love.graphics.newShader[[
@@ -154,7 +155,7 @@ function love.draw()
     local x, y = love.graphics.getDimensions()
 
     local cx, cy = camera:pos()
-    shader:send("crustal", {crustal.x - cx, crustal.y - cy})
+    shader:send("crustal", {crustal.body:getX() - cx, crustal.body:getY() - cy})
     love.graphics.setShader(shader)
 
     love.graphics.setColor(100, 67, 93)
@@ -185,10 +186,9 @@ function love.update(dt)
     shaderT = shaderT + shaderDt
 
     if life <= 0 then
-        love.window.close()
+        love.event.quit()
     end
 
-    crustcle:update(dt)
     for i = #actors, 1, -1 do
         local a = actors[i]
         a:update(dt)

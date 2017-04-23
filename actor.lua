@@ -91,7 +91,9 @@ function Player:draw(camera)
     local x, y = self:pos()
     self.sprite:draw(x - cx, y - cy)
 end
-
+function Player:destroy()
+    removeBody(self)
+end
 
 Enemy = {}
 Enemy.__index = Enemy
@@ -142,12 +144,14 @@ function Enemy:update(dt)
 end
 function Enemy:collide(other)
     print(getmetatable(other), Crustal)
-    if getmetatable(other) == Crustal then
+    if not self.shouldRemove and getmetatable(other) == Crustal then
         life = life - 3
         self.shouldRemove = true
     end
 end
-
+function Enemy:destroy()
+    removeBody(self)
+end
 
 EnemyBasic = function(x, y)
     return Enemy("basic", x, y)

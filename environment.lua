@@ -35,7 +35,7 @@ function Tree:getZ()
     return self.body:getY()
 end
 function Tree:update(dt)
-    if crustcle:inside(self:pos()) then
+    if crustal:inside(self:pos()) then
         self.leavesAlpha = min(self.leavesAlpha + 5, 255)
         self.color = treeColor[2]
     else
@@ -54,6 +54,9 @@ function Tree:draw(camera)
         treeSprite:drawSpecific(x - cx, y - cy, 1, 0)
     end
     love.graphics.setColor(255, 255, 255)
+end
+function Tree:destroy()
+    removeBody(self)
 end
 
 Chunk = {}
@@ -104,7 +107,7 @@ end
 function Chunk:draw(camera)
     local cx, cy = camera:pos()
     for i, p in pairs(self.props) do
-        love.graphics.setColor((crustcle:inside(p.x, p.y) and p.good) or p.evil)
+        love.graphics.setColor((crustal:inside(p.x, p.y) and p.good) or p.evil)
         p.sprite:drawSpecific(p.x - cx, p.y - cy, p.tx, p.ty)
         love.graphics.setColor(255, 255, 255)
     end
@@ -117,7 +120,7 @@ local function newEnvironment(chunkSize)
         chunkSize = chunkSize,
         chunks = {},
         ttSpawnBasic = 1,
-        spawnRateBasic = 480,
+        spawnRateBasic = 1/3,
     }, Environment)
 end
 setmetatable(Environment, {
@@ -153,10 +156,10 @@ function Environment:update(dt)
         local x = camera.x + radius*cos(angle)
         local y = camera.y + radius*sin(angle)
         addActor(EnemyBasic(x, y))
-        self.ttSpawnBasic = ceil(self.spawnRateBasic)
+        self.ttSpawnBasic = 60/self.spawnRateBasic
     end
 
-    self.spawnRateBasic = max(self.spawnRateBasic - 0.05, 60)
+    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3)
 end
 function Environment:getZ()
     return 0
