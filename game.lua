@@ -19,6 +19,11 @@ life = nil
 shakes = {}
 shakeX = 0
 shakeY = 0
+score = 0
+
+function currentScore()
+    return floor((score / 60) * 3)
+end
 
 playerImg = love.graphics.newImage("imgs/tripod.png")
 function tripodMovement(self, actor, movX, movY, speedX, speedY)
@@ -59,6 +64,7 @@ function shake(duration, intensity)
 end
 
 function game.load()
+    score = 0
     local w, h = love.graphics.getDimensions()
 
     actors = {}
@@ -142,25 +148,37 @@ function game.draw()
     love.graphics.pop()
     love.graphics.setShader()
 end
+function drawScore(w, h)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.setFont(mediumFont)
+    love.graphics.print("Score", w - 36 - mediumFont:getWidth("Score"), 24)
+    love.graphics.setFont(monoFont)
+    local scoreText = tostring(currentScore())
+    love.graphics.print(scoreText, w - 36 - monoFont:getWidth(scoreText), 24 + mediumFont:getHeight())
+end
 function game.ui()
+    local w, h = love.graphics.getDimensions()
+
     -- Life bar
-    love.graphics.setFont(smallFont)
     love.graphics.setColor(0, 135, 105)
     love.graphics.rectangle("fill", 30, 34, initialLife*2, 16)
     love.graphics.setColor(0, 198, 154)
     love.graphics.rectangle("fill", 32, 32, life*2, 16)
+    love.graphics.setFont(smallFont)
     love.graphics.setColor(0, 90, 70)
     love.graphics.print(tostring(ceil(life)),
         36, round(32 + (16 - smallFont:getHeight()) / 2))
 
+    -- Score
+    drawScore(w, h)
+
     -- Special wave indicator
     if player.specialWaveReady then
-        local w, h = love.graphics.getDimensions()
         love.graphics.setColor(255, 255, 255)
         love.graphics.setFont(mediumFont)
-        love.graphics.print("Wave Special Ready", 36, h - mediumFont:getHeight() - smallFont:getHeight() - 16)
+        love.graphics.print("Wave Special Ready", 36, h - mediumFont:getHeight() - smallFont:getHeight() - 36)
         love.graphics.setFont(smallFont)
-        love.graphics.print("(press space to use)", 36, h - smallFont:getHeight() - 8)
+        love.graphics.print("(press space to use)", 36, h - smallFont:getHeight() - 30)
     end
 end
 function game.update(dt)
@@ -168,6 +186,8 @@ function game.update(dt)
         state = 'bananas'
         return
     end
+
+    score = score + 1
 
     for i = #shakes, 1, -1 do
         local shake = shakes[i]
@@ -202,7 +222,6 @@ function game.update(dt)
 end
 
 function beginContact(a, b, coll)
-    -- x, y = coll:getNormal()
     objA = a:getUserData()
     objB = b:getUserData()
     if objA and objA.collide ~= nil then
