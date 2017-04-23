@@ -122,6 +122,8 @@ local function newEnvironment(chunkSize)
         spawnRateBasic = 1/3,
         ttSpawnHealth = 60*10,
         spawnRateHealth = 1/10,
+        ttSpawnSpecialWave = 60*24,
+        spawnRateSpecialWave = 1/18,
     }, Environment)
 end
 setmetatable(Environment, {
@@ -151,25 +153,30 @@ end
 function Environment:update(dt)
     self.ttSpawnBasic = self.ttSpawnBasic - 1
     self.ttSpawnHealth = self.ttSpawnHealth - 1
+    self.ttSpawnSpecialWave = self.ttSpawnSpecialWave - 1
 
     if self.ttSpawnBasic <= 0 then
-        local radius = rand(100) + 600
-        local angle = rand() * 2 * pi
-        local x = camera.x + radius*cos(angle)
-        local y = camera.y + radius*sin(angle)
-        addActor(EnemyBasic(x, y))
+        local r = rand(100) + 600
+        local a = rand() * 2 * pi
+        addActor(EnemyBasic(camera.x + r*cos(a), camera.y + r*sin(a)))
         self.ttSpawnBasic = 60/self.spawnRateBasic
     end
 
     if self.ttSpawnHealth <= 0 then
-        local radius = rand(100) + 75
-        local angle = rand() * 2 * pi
-        local x = camera.x + radius*cos(angle)
-        local y = camera.y + radius*sin(angle)
-        addActor(ItemHealth(x, y))
+        local r = rand(100) + 75
+        local a = rand() * 2 * pi
+        addActor(ItemHealth(camera.x + r*cos(a), camera.y + r*sin(a)))
         self.ttSpawnHealth = 60/self.spawnRateHealth
+    end
+
+    if self.ttSpawnSpecialWave <= 0 then
+        local r = rand(100) + 100
+        local a = rand() * 2 * pi
+        addActor(ItemSpecialWave(camera.x + r*cos(a), camera.y + r*sin(a)))
+        self.ttSpawnSpecialWave = 60/self.spawnRateSpecialWave
     end
 
     self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3) -- Max 3 basic per second
     self.spawnRateHealth = min(self.spawnRateBasic + 0.0002, 1/5) -- Max 1 health per 5 sec
+    self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0002, 1/5) -- Max 1 special wave per 5 sec
 end

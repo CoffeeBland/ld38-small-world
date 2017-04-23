@@ -87,6 +87,23 @@ function ItemHealth(x, y)
     return p
 end
 
+local itemSpecialWaveImg = love.graphics.newImage("imgs/item_special_wave.png")
+local itemSpecialWaveSprite = AnimSprite(itemSpecialWaveImg, 32, 32)
+function itemSpecialWaveCollide(self, other)
+    if getmetatable(other) == Player then
+        self.shouldRemove = true
+        player.specialWaveReady = true
+    end
+end
+function ItemSpecialWave(x, y)
+    local shape = love.physics.newCircleShape(16)
+    local ttl = 4 * 60 -- Disapear after 4 sec
+    p = Projectile(itemSpecialWaveSprite, x, y, shape, ttl, "Wave Special")
+    p.fixture:setSensor(true)
+    p.collide = itemSpecialWaveCollide
+    return p
+end
+
 local sparkleImg = love.graphics.newImage("imgs/sparkle.png")
 function Sparkle(x, y)
     return Projectile(AnimSprite(sparkleImg, 16, 16, 8), x, y, nil, 32)

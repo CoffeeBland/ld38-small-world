@@ -94,6 +94,7 @@ function game.load()
         left = "left",
         down = "down",
         right = "right",
+        space = "special",
         w = "shoot",
         a = "shoot",
         s = "shoot",
@@ -165,6 +166,16 @@ function game.ui()
     love.graphics.setColor(0, 90, 70)
     love.graphics.print(tostring(ceil(life)),
         36, round(32 + (16 - smallFont:getHeight()) / 2))
+
+    -- Special wave indicator
+    if player.specialWaveReady then
+        local w, h = love.graphics.getDimensions()
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.setFont(mediumFont)
+        love.graphics.print("Wave Special Ready", 36, h - mediumFont:getHeight() - smallFont:getHeight() - 16)
+        love.graphics.setFont(smallFont)
+        love.graphics.print("(press space to use)", 36, h - smallFont:getHeight() - 8)
+    end
 end
 function game.update(dt)
     if life <= 0 then

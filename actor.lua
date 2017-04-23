@@ -38,7 +38,7 @@ function Actor:draw(camera)
 end
 function Actor:update(dt)
     local len = dst(self.movementX, self.movementY)
-    if (len ~= 0) then
+    if len ~= 0 then
         self.movementX = self.movementX / len
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(self.movementX * self.speed, self.movementY * self.speed)
@@ -65,6 +65,7 @@ local function newPlayer(sprite, controls, x, y)
     obj.keys = {}
     obj.sinceShot = 0
     obj.outsideCrustalFor = 0
+    obj.specialWaveReady = false
     return setmetatable(obj, Player)
 end
 setmetatable(Player, {
@@ -83,6 +84,16 @@ end
 function Player:hold_right(dt)
     self.movementX = self.movementX + 1
 end
+function Player:begin_special(dt)
+    if self.specialWaveReady then
+        self.specialWaveReady = false
+        local x, y = self:pos()
+        for i = 1, 64 do
+            local a = i/64 * 2 * pi
+            addActor(Bullet(x, y, cos(a), sin(a)))
+        end
+    end
+end
 function Player:begin_shoot(dt, k)
     if self.sinceShot == 0 then
         return
@@ -95,9 +106,7 @@ function Player:begin_shoot(dt, k)
     if k == "s" then fy = 1 end
     if k == "d" then fx = 1 end
 
-    addActor(Bullet(
-        self.body:getX(), self.body:getY(), fx, fy
-    ))
+    addActor(Bullet(self.body:getX(), self.body:getY(), fx, fy))
 end
 function Player:update(dt)
     self.sinceShot = self.sinceShot + 1
