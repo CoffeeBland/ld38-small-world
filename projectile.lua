@@ -51,8 +51,7 @@ end
 local bulletImg = love.graphics.newImage("imgs/bullet.png")
 function bulletCollide(self, other)
     if getmetatable(other) == Enemy then
-        self.shouldRemove = true
-        other.shouldRemove = true
+        other:hit(self)
     end
 end
 function bulletDestroy(self)

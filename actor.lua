@@ -162,6 +162,9 @@ end
 function Enemy:collide(other)
     (self.type.collide or noop)(self, other)
 end
+function Enemy:hit(bullet)
+    (self.type.hit or noop)(self, bullet)
+end
 function Enemy:destroy()
     shake(6, 8)
     addActor(BloodSplatter(self:pos()))
@@ -196,6 +199,10 @@ basic = {
         self.movementX = crustalX - x
         self.movementY = crustalY - y
     end,
+    hit = function(self, bullet)
+        self.shouldRemove = true
+        bullet.shouldRemove = true
+    end,
     radius = 12,
     speed = 6,
 }
@@ -225,6 +232,7 @@ blob = {
     end,
     init = function(self, type, x, y)
         self.attacking = 0
+        self.hitpoint = 4
     end,
     update = function(self, dt)
         local x, y = self:pos()
@@ -250,6 +258,14 @@ blob = {
                 addActor(Beam(self, ox, oy, self.attackX, self.attackY - 32, blob.beamWidth, blob.beamColor, 30))
                 addActor(RedExplosion(self.attackX, self.attackY))
             end
+        end
+    end,
+    hit = function(self, bullet)
+        bullet.shouldRemove = true
+        if self.shouldRemove then return end
+        self.hitpoint = self.hitpoint - 1
+        if self.hitpoint <= 0 then
+            self.shouldRemove = true
         end
     end,
     radius = 22,
