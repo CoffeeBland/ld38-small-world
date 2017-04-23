@@ -149,6 +149,8 @@ function Enemy:collide(other)
     end
 end
 function Enemy:destroy()
+    shake(6, 8)
+    addActor(BloodSplatter(self:pos()))
     removeBody(self)
 end
 

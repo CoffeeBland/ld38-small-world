@@ -47,6 +47,8 @@ local function newCrustal(size, x, y)
         pts = pts,
         size = size,
         size2 = pow(size, 2),
+        remaining = 1,
+        remaining2 = 1,
     }, Crustal)
     fixture:setCategory(CAT_FRIENDLY)
     fixture:setUserData(obj)
@@ -95,6 +97,9 @@ function Crustal:update(dt)
         nextI = (i + 1) % #self.pts
         pt:update(dt, self.pts[prevI], self.pts[nextI])
     end
+
+    self.remaining2 = 0.75 * life / initialLife + 0.25
+    self.remaining = sqrt(self.remaining2)
 end
 function Crustal:getZ()
     return self.body:getY()
@@ -108,12 +113,12 @@ function Crustal:poly(camera)
     local poly = {}
     for i = 1, #self.pts do
         local pt = self.pts[i]
-        poly[i*2-1] = math.cos(pt.a) * pt.r + x - cx
-        poly[i*2] = math.sin(pt.a) * pt.r + y - cy
+        poly[i*2-1] = (math.cos(pt.a) * pt.r) * self.remaining + x - cx
+        poly[i*2] = (math.sin(pt.a) * pt.r) * self.remaining + y - cy
     end
     return poly
 end
 function Crustal:inside(x, y)
     local selfX, selfY = self:pos()
-    return pow(x - selfX, 2) + pow(y - selfY, 2) < self.size2
+    return pow(x - selfX, 2) + pow(y - selfY, 2) < (self.size2 * self.remaining2)
 end

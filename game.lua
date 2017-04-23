@@ -16,6 +16,7 @@ player = nil
 crustal = nil
 initialLife = 100
 life = nil
+shakes = {}
 
 playerImg = love.graphics.newImage("imgs/tripod.png")
 function tripodMovement(self, movX, movY, speedX, speedY, sinceShot)
@@ -59,6 +60,14 @@ function removeBody(actor)
             break
         end
     end
+end
+
+function shakeSort(a, b)
+    return b[1] - a[1] > 0
+end
+function shake(duration, intensity)
+    table.insert(shakes, { duration, intensity })
+    table.sort(shakes, shakeSort)
 end
 
 function game.load()
@@ -118,13 +127,20 @@ function zSort(a, b)
     end
     return (b:getZ() - a:getZ()) > 0
 end
+
 function game.draw()
-    --love.graphics.scale(2, 2)
     local x, y = love.graphics.getDimensions()
 
     local cx, cy = camera:pos()
     shader:send("crustal", {crustal.body:getX() - cx, crustal.body:getY() - cy})
     love.graphics.setShader(shader)
+
+    if #shakes > 0 then
+        love.graphics.push()
+        love.graphics.translate(
+            (rand() - 0.5) * shakes[#shakes][2],
+            (rand() - 0.5) * shakes[#shakes][2])
+    end
 
     love.graphics.setColor(100, 67, 93)
     love.graphics.rectangle("fill", 0, 0, x, y)
@@ -140,6 +156,7 @@ function game.draw()
     for i, a in pairs(actors) do
         a:draw(camera)
     end
+    if #shakes > 0 then love.graphics.pop() end
     love.graphics.setShader()
 end
 function game.ui()
@@ -157,6 +174,14 @@ function game.update(dt)
     if life <= 0 then
         state = 'bananas'
         return
+    end
+
+    for i = #shakes, 1, -1 do
+        local shake = shakes[i]
+        shake[1] = shake[1] - 1
+        if shake[1] <= 0 then
+            table.remove(shakes, i)
+        end
     end
 
     for i = #actors, 1, -1 do
