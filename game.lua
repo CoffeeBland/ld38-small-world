@@ -17,6 +17,8 @@ crustal = nil
 initialLife = 100
 life = nil
 shakes = {}
+shakeX = 0
+shakeY = 0
 
 playerImg = love.graphics.newImage("imgs/tripod.png")
 function tripodMovement(self, movX, movY, speedX, speedY, sinceShot)
@@ -130,12 +132,8 @@ function game.draw()
     shader:send("crustal", {crustal.body:getX() - cx, crustal.body:getY() - cy})
     love.graphics.setShader(shader)
 
-    if #shakes > 0 then
-        love.graphics.push()
-        love.graphics.translate(
-            (rand() - 0.5) * shakes[#shakes][2],
-            (rand() - 0.5) * shakes[#shakes][2])
-    end
+    love.graphics.push()
+    love.graphics.translate(shakeX, shakeY)
 
     love.graphics.setColor(100, 67, 93)
     love.graphics.rectangle("fill", 0, 0, x, y)
@@ -150,7 +148,7 @@ function game.draw()
     for i, a in pairs(actors) do
         a:draw(camera)
     end
-    if #shakes > 0 then love.graphics.pop() end
+    love.graphics.pop()
     love.graphics.setShader()
 end
 function game.ui()
@@ -176,6 +174,13 @@ function game.update(dt)
         if shake[1] <= 0 then
             table.remove(shakes, i)
         end
+    end
+    if #shakes > 0 then
+        shakeX = (rand() - 0.5) * shakes[#shakes][2]
+        shakeY = (rand() - 0.5) * shakes[#shakes][2]
+    else
+        shakeX = 0
+        shakeY = 0
     end
 
     for i = #actors, 1, -1 do
