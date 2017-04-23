@@ -46,9 +46,9 @@ function love.load()
     love.window.setIcon(love.graphics.newImage('imgs/crustal.png'):getData())
     game.load()
     game.update(0)
-    smallFont = love.graphics.newFont('Montserrat-Medium.ttf', 12)
-    mediumFont = love.graphics.newFont('Montserrat-Medium.ttf', 24)
-    largeFont = love.graphics.newFont('Montserrat-Medium.ttf', 92)
+    smallFont = love.graphics.newFont('fonts/Montserrat-Medium.ttf', 12)
+    mediumFont = love.graphics.newFont('fonts/Montserrat-Medium.ttf', 24)
+    largeFont = love.graphics.newFont('fonts/Montserrat-Medium.ttf', 92)
 end
 
 function love.update(dt)
