@@ -28,6 +28,7 @@ function noop() end
 
 require('game')
 state = 'title'
+monoFont = nil
 smallFont = nil
 mediumFont = nil
 largeFont = nil
@@ -46,6 +47,7 @@ function love.load()
     love.window.setIcon(love.graphics.newImage('imgs/crustal.png'):getData())
     game.load()
     game.update(0)
+    monoFont = love.graphics.newFont('fonts/Go-Mono-Bold.ttf', 18)
     smallFont = love.graphics.newFont('fonts/Montserrat-Medium.ttf', 12)
     mediumFont = love.graphics.newFont('fonts/Montserrat-Medium.ttf', 24)
     largeFont = love.graphics.newFont('fonts/Montserrat-Medium.ttf', 92)
@@ -106,9 +108,11 @@ function love.draw()
             shadowRender(gameoverText, 0, y / 2 - largeFont:getHeight() - 8, x)
             love.graphics.setFont(mediumFont)
             shadowRender(promptText, 0, y / 2, x)
+            drawScore(x, y)
         elseif state == 'pause' then
             love.graphics.setFont(mediumFont)
             shadowRender('PAUSED', 0, y / 2, x)
+            drawScore(x, y)
         end
         love.graphics.setFont(smallFont)
         love.graphics.printf(controlsText, 0, 16, x, 'center');
