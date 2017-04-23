@@ -38,6 +38,7 @@ function AnimSprite:update(dt)
     end
 end
 function AnimSprite:draw(x, y)
+    love.graphics.setColor(255, 255, 255)
     love.graphics.draw(self.img,
         self.quads[self.tx][self.ty],
         x, y,

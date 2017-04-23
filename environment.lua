@@ -53,7 +53,6 @@ function Tree:draw(camera)
         love.graphics.setColor(treeColor[3])
         treeSprite:drawSpecific(x - cx, y - cy, 1, 0)
     end
-    love.graphics.setColor(255, 255, 255)
 end
 function Tree:destroy()
     removeBody(self)
@@ -109,7 +108,6 @@ function Chunk:draw(camera)
     for i, p in pairs(self.props) do
         love.graphics.setColor((crustal:inside(p.x, p.y) and p.good) or p.evil)
         p.sprite:drawSpecific(p.x - cx, p.y - cy, p.tx, p.ty)
-        love.graphics.setColor(255, 255, 255)
     end
 end
 
