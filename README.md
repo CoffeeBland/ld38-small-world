@@ -9,6 +9,9 @@ and you find better weapons.
 
 ## Getting the game
 
+See [Releases page](https://github.com/CoffeeBland/ld38-small-world/releases) for pre-built versions
+of the game you can download and run.
+
 ## Game
 
 ![Title](https://raw.githubusercontent.com/CoffeeBland/ld38-small-world/master/support/screen_title.png)
