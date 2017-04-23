@@ -2,7 +2,7 @@ Player = {}
 Player.__index = Player
 local function newPlayer(sprite, controls)
     local body = love.physics.newBody(world, 0, 0, "dynamic")
-    local shape = love.physics.newCircleShape(1)
+    local shape = love.physics.newCircleShape(12)
     local fixture = love.physics.newFixture(body, shape, 1)
     body:setFixedRotation(true)
     body:setLinearDamping(10)
@@ -14,7 +14,7 @@ local function newPlayer(sprite, controls)
         body = body,
         shape = shape,
         fixture = fixture,
-        speed = 0.1,
+        speed = 10,
         ty = 0,
         lastShoot = 0,
         movementX = 0,
@@ -94,7 +94,7 @@ Enemy.__index = Enemy
 local function newEnemy(type, x, y)
     local sprite = AnimSprite(enemyBasicImg, 48, 48, 4, true, 24, 32)
     local body = love.physics.newBody(world, x, y, "dynamic")
-    local shape = love.physics.newCircleShape(24)
+    local shape = love.physics.newCircleShape(12)
     local fixture = love.physics.newFixture(body, shape, 1)
     body:setFixedRotation(true)
     body:setLinearDamping(10)
@@ -119,6 +119,9 @@ function Enemy:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
     self.sprite:draw(x - cx, y - cy)
+end
+function Enemy:getZ()
+    return self.body:getY()
 end
 function Enemy:update(dt)
     -- Approch crustal

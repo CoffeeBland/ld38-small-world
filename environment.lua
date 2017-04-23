@@ -7,7 +7,7 @@ local treeColor = {
     { 77, 51, 71 },
     { 120, 80, 60 },
     -- leaves
-    { 82, 230, 118, 0 }
+    { 150, 210, 110, 0 }
 }
 Tree = {}
 Tree.__index = Tree

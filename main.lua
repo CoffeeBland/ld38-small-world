@@ -45,7 +45,9 @@ function removeBody(actor)
     local bodies = world:getBodyList()
     for i = #bodies, 1, -1 do
         if bodies[i] == actor.body then
-            actor.fixture:destroy()
+            if actor.fixture then
+                actor.fixture:destroy()
+            end
             actor.body:destroy()
             table.remove(bodies, i)
             break
