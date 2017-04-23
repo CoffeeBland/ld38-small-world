@@ -21,11 +21,7 @@ shakes = {}
 playerImg = love.graphics.newImage("imgs/tripod.png")
 function tripodMovement(self, movX, movY, speedX, speedY, sinceShot)
     local moving = movX == 0 and movY == 0
-    --if self.ty == 1 and moving then
-    --    self.tx = 1
-    --    self.time = 0
-    --end
-    self.ty = (sinceShot < 20 and 2) or (moving and 1) or 0
+    self.ty = (sinceShot < 20 and (moving and 3 or 2)) or (moving and 1) or 0
     self.fpt = 20 / (dst(speedX, speedY) / 600 + 1)
 end
 
@@ -85,7 +81,7 @@ function game.load()
 
     camera = Camera()
 
-    local sprite = AnimSprite(playerImg, 48, 64, 4, true, 24, 56)
+    local sprite = AnimSprite(playerImg, 48, 72, 4, true, 24, 56)
     sprite.movement = tripodMovement
     player = Player(sprite, {
         up = "up",
