@@ -39,6 +39,9 @@ function wallabiMovement(self, movX, movY, speedX, speedY)
     self.fpt = 10 / (dst(speedX, speedY) / 600 + 1)
 end
 
+blobImg = love.graphics.newImage("imgs/blob.png")
+blobMovement = wallabiMovement
+
 function crustalCircle()
     love.graphics.polygon("fill", crustal:poly(camera))
 end
