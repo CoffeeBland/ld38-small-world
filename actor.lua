@@ -93,13 +93,15 @@ local function newEnemy(type, x, y)
     body:setLinearDamping(10)
     fixture:setCategory(CAT_ENEMY)
 
-    return setmetatable({
+    obj = setmetatable({
         type = type,
         sprite = sprite,
         body = body,
         shape = shape,
         fixture = fixture,
     }, Enemy)
+    fixture:setUserData(obj)
+    return obj
 end
 setmetatable(Enemy, {
     __call = function(_, ...) return newEnemy(...) end

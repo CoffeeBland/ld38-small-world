@@ -183,13 +183,13 @@ end
 
 function beginContact(a, b, coll)
     -- x, y = coll:getNormal()
-    a = a:getUserData()
-    b = b:getUserData()
-    if a and a.collide ~= nil then
-        a.collide(b)
+    objA = a:getUserData()
+    objB = b:getUserData()
+    if objA and objA.collide ~= nil then
+        objA:collide(objB)
     end
-    if b and b.collide ~= nil then
-        b.collide(a)
+    if objB and objB.collide ~= nil then
+        objB:collide(objA)
     end
 end
 

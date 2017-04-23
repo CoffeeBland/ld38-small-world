@@ -3,18 +3,19 @@ Projectile.__index = Projectile
 local function newProjectile(sprite, x, y, shape, ttl)
     local body = love.physics.newBody(world, x, y, "kinematic")
     body:setFixedRotation(true)
-    body:setLinearDamping(5)
     local fixture = nil
     if shape then
         fixture = love.physics.newFixture(body, shape, 1)
     end
-    return setmetatable({
+    local obj = setmetatable({
         sprite = sprite,
         body = body,
         shape = shape,
         fixture = fixture,
         ttl = ttl,
     }, Projectile)
+    fixture:setUserData(obj)
+    return obj
 end
 setmetatable(Projectile, {
     __call = function(_, ...) return newProjectile(...) end
@@ -44,7 +45,17 @@ function Bullet(x, y, dirX, dirY, initVelX, initVelY)
     local shape = love.physics.newCircleShape(8)
     p = Projectile(bulletSprite, x, y, shape, 5 * 60)
     p.body:setLinearVelocity((dirX * 480) + initVelX, (dirY * 480) + initVelY)
-    p.fixture:setFilterData(CAT_FRIENDLY, CAT_ENEMY, GRP_PROJ)
+    --p.fixture:setFilterData(CAT_FRIENDLY, 0, 0)
+    p.fixture:setSensor(true)
+
+    p.collide = function(self, other)
+        print(getmetatable(other), Enemy)
+        if getmetatable(other) == Enemy then
+            self.shouldRemove = true
+            other.shouldRemove = true
+        end
+    end
+
     return p
 end
 
