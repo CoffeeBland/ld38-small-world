@@ -120,6 +120,10 @@ local function newEnvironment(chunkSize)
 
         ttSpawnBasic = 1,
         spawnRateBasic = 1/3,
+
+        ttSpawnBlob = 1,
+        spawnRateBlob = 1/3,
+
         ttSpawnHealth = 60*10,
         spawnRateHealth = 1/10,
         ttSpawnSpecialWave = 60*24,
@@ -152,6 +156,7 @@ function Environment:draw(camera)
 end
 function Environment:update(dt)
     self.ttSpawnBasic = self.ttSpawnBasic - 1
+    self.ttSpawnBlob = self.ttSpawnBlob - 1
     self.ttSpawnHealth = self.ttSpawnHealth - 1
     self.ttSpawnSpecialWave = self.ttSpawnSpecialWave - 1
 
@@ -160,6 +165,15 @@ function Environment:update(dt)
         local a = rand() * 2 * pi
         addActor(EnemyBasic(camera.x + r*cos(a), camera.y + r*sin(a)))
         self.ttSpawnBasic = 60/self.spawnRateBasic
+    end
+
+    if self.ttSpawnBlob <= 0 then
+        local radius = rand(100) + 600
+        local angle = rand() * 2 * pi
+        local x = camera.x + radius*cos(angle)
+        local y = camera.y + radius*sin(angle)
+        addActor(EnemyBlob(x, y))
+        self.ttSpawnBlob = 60/self.spawnRateBlob
     end
 
     if self.ttSpawnHealth <= 0 then
@@ -177,6 +191,7 @@ function Environment:update(dt)
     end
 
     self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3) -- Max 3 basic per second
-    self.spawnRateHealth = min(self.spawnRateBasic + 0.0002, 1/5) -- Max 1 health per 5 sec
+    self.spawnRateBlob = min(self.spawnRateBlob + 0.0004, 3) -- Max 3 blob per second
+    self.spawnRateHealth = min(self.spawnRateHealth + 0.0002, 1/5) -- Max 1 health per 5 sec
     self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0002, 1/5) -- Max 1 special wave per 5 sec
 end

@@ -28,7 +28,7 @@ setmetatable(AnimSprite, {
     __call = function(_, ...) return newAnimSprite(...) end
 })
 function AnimSprite:update(dt)
-    if (not self.loop and self.tx + 1 == self.txs) then
+    if not self.loop and self.tx + 1 == self.txs or self.fpt == 0 then
         return
     end
     self.time = self.time + 1;

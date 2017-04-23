@@ -45,7 +45,7 @@ function Actor:update(dt)
     end
 
     local mx, my = self.body:getLinearVelocity()
-    self.sprite:movement(self.movementX, self.movementY, mx, my, self.sinceShot)
+    self.sprite:movement(self, self.movementX, self.movementY, mx, my)
     self.sprite:update(dt)
 end
 function Actor:destroy()
@@ -146,27 +146,21 @@ Enemy.__index = Enemy
 local function newEnemy(type, x, y)
     local obj = Actor(type.sprite(), type.radius, type.speed, x, y)
     obj.fixture:setCategory(CAT_ENEMY)
-    obj.sprite.movement = wallabiMovement
     obj.type = type
-    return setmetatable(obj, Enemy)
+    setmetatable(obj, Enemy)
+    ;(obj.type.init or noop)(obj, type, x, y)
+    return obj
 end
 setmetatable(Enemy, {
     __call = function(_, ...) return newEnemy(...) end,
     __index = Actor
 })
 function Enemy:update(dt)
-    -- Approach crustal
-    local crustalX, crustalY = crustal:pos()
-    local x, y = self:pos()
-    self.movementX = crustalX - x
-    self.movementY = crustalY - y
+    (self.type.update or noop)(self, dt)
     Actor.update(self, dt)
 end
 function Enemy:collide(other)
-    if not self.shouldRemove and getmetatable(other) == Crustal then
-        life = life - 3
-        self.shouldRemove = true
-    end
+    (self.type.collide or noop)(self, other)
 end
 function Enemy:destroy()
     shake(6, 8)
@@ -174,13 +168,103 @@ function Enemy:destroy()
     Actor.destroy(self)
 end
 
-local basic = {
+basic = {
+    img = love.graphics.newImage("imgs/enemy_basic.png"),
     sprite = function()
-        return AnimSprite(enemyBasicImg, 48, 48, 4, true, 24, 32)
+        local sprite = AnimSprite(basic.img, 48, 48, 4, true, 24, 32)
+        sprite.movement = basic.spriteMovement
+        return sprite
+    end,
+    spriteMovement = function(self, actor, movX, movY, speedX, speedY)
+        if movX ~= 0 or movY ~= 0 then
+            self.baseTy = (abs(movX) >= abs(movY) and 6) or (movY < 0 and 3) or 0
+            self.flipX = movX < 0
+        end
+        local speed = dst(speedX, speedY)
+        self.ty = (self.baseTy or 0) + ((speed > 0.1 and 0) or 1)
+        self.fpt = 10 / (speed / 600 + 1)
+    end,
+    collide = function(self, other)
+        if not self.shouldRemove and getmetatable(other) == Crustal then
+            life = life - 3
+            self.shouldRemove = true
+        end
+    end,
+    update = function(self, dt)
+        local crustalX, crustalY = crustal:pos()
+        local x, y = self:pos()
+        self.movementX = crustalX - x
+        self.movementY = crustalY - y
     end,
     radius = 12,
     speed = 6,
 }
 EnemyBasic = function(x, y)
     return Enemy(basic, x, y)
+end
+
+blob = {
+    img = love.graphics.newImage("imgs/blob.png"),
+    sprite = function()
+        local sprite = AnimSprite(blob.img, 64, 64, 4, true, 32, 52)
+        sprite.movement = blob.spriteMovement
+        return sprite
+    end,
+    spriteMovement = function(self, actor, movX, movY, speedX, speedY)
+        if actor.attacking > 0 then
+            if actor.attacking > 30 then
+                self.tx = 0
+            else
+                self.tx = 1
+            end
+            self.fpt = 0
+            self.ty = self.baseTy  + 2
+        else
+            return basic.spriteMovement(self, actor, movX, movY, speedX, speedY)
+        end
+    end,
+    init = function(self, type, x, y)
+        self.attacking = 0
+    end,
+    update = function(self, dt)
+        local x, y = self:pos()
+        local pX, pY = player:pos()
+        if self.attacking <= 0 then
+            local dst2P = dst(pX - x, pY - y)
+            if dst2P < 128 then
+                self.attacking = 60
+                self.attackX = pX
+                self.attackY = pY
+                local ox, oy = self.type.beamOffset(self, x, y)
+                addActor(Beam(self, ox, oy, pX, pY - 32, blob.preBeamWidth, blob.beamColor, 30))
+                self.movementX = 0
+                self.movementY = 0
+            else
+                self.movementX = pX - x
+                self.movementY = pY - y
+            end
+        else
+            self.attacking = self.attacking - 1
+            if self.attacking == 30 then
+                local ox, oy = self.type.beamOffset(self, x, y)
+                addActor(Beam(self, ox, oy, self.attackX, self.attackY - 32, blob.beamWidth, blob.beamColor, 30))
+                addActor(RedExplosion(self.attackX, self.attackY))
+            end
+        end
+    end,
+    radius = 22,
+    speed = 8,
+    beamOffset = function(self, x, y)
+        return
+            ((self.sprite.baseTy == 6 and 20) or 0) * (self.sprite.flipX and -1 or 1),
+            (self.sprite.baseTy == 0 and -24) or (self.sprite.baseTy == 3 and -50) or -24
+    end,
+    preBeamWidth = function(a) return 2 end,
+    beamWidth = function(a)
+        return sin(a * pi) * (sin(a * 16 * pi) * 4 + 10)
+    end,
+    beamColor = function(a) return { 255, 0, 96 } end
+}
+EnemyBlob = function(x, y)
+    return Enemy(blob, x, y)
 end

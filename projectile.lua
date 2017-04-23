@@ -21,7 +21,7 @@ setmetatable(Projectile, {
 })
 function Projectile:draw(camera)
     local cx, cy = camera:pos()
-    local x, y = self.body:getX(), self.body:getY()
+    local x, y = self:pos()
     self.sprite:draw(x - cx, y - cy)
     if self.helpText then
         local textW = smallFont:getWidth(self.helpText)
@@ -67,6 +67,25 @@ function Bullet(x, y, dirX, dirY)
     p.fixture:setSensor(true)
     p.collide = bulletCollide
     p.destroy = bulletDestroy
+    return p
+end
+
+local redBoomImg = love.graphics.newImage("imgs/red-boom.png")
+function redExplosionCollide(self, other)
+    if getmetatable(other) == Player then
+        life = life - 10
+        shake(8, 8)
+    end
+end
+function redExplosionDestroy(self)
+    removeBody(self)
+end
+function RedExplosion(x, y)
+    local shape = love.physics.newCircleShape(20)
+    p = Projectile(AnimSprite(redBoomImg, 32, 32, 4, true, 16, 48), x, y, shape, 30)
+    p.fixture:setSensor(true)
+    p.collide = redExplosionCollide
+    p.destroy = redExplosionDestroy
     return p
 end
 
@@ -123,3 +142,48 @@ local blueBoomImg = love.graphics.newImage("imgs/blue-boom.png")
 function BlueBoom(x, y)
     return Projectile(AnimSprite(blueBoomImg, 24, 24, 6), x, y, nil, 18)
 end
+
+Beam = {}
+Beam.__index = Beam
+local function newBeam(source, oX, oY, eX, eY, wFunc, cFunc, ttl)
+    local x, y = source:pos()
+    return setmetatable({
+        source = source,
+        sourceX = x,
+        sourceY = y,
+        oX = oX,
+        oY = oY,
+        eX = eX,
+        eY = eY,
+        wFunc = wFunc,
+        cFunc = cFunc,
+        ttl = ttl,
+        initialTtl = ttl,
+    }, Beam)
+end
+setmetatable(Beam, {
+    __call = function(_, ...) return newBeam(...) end
+})
+function Beam:update(dt)
+    self.ttl = self.ttl  - 1
+    if self.ttl <= 0 then
+        self.shouldRemove = true
+    end
+
+    if not self.source.body:isDestroyed() then
+        self.sourceX, self.sourceY = self.source:pos()
+    end
+end
+function Beam:draw()
+    local portion = self.ttl / self.initialTtl
+    love.graphics.setLineWidth(self.wFunc(portion))
+    love.graphics.setColor(self.cFunc(portion))
+
+    local cx, cy = camera:pos()
+    love.graphics.line(
+        self.sourceX + self.oX - cx,
+        self.sourceY + self.oY - cy,
+        self.eX - cx,
+        self.eY - cy)
+end
+function Beam:getZ() return 100000000 end
