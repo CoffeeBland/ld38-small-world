@@ -32,9 +32,9 @@ smallFont = nil
 mediumFont = nil
 largeFont = nil
 
-titleText = 'CRUSTLE'
+titleText = 'CRUSTAL'
 promptText = 'PRESS SPACE OR ENTER TO BEGIN'
-explanationText = "The CRUSTLE! The last bastion of hope for this small world.\n" ..
+explanationText = "The CRUSTAL! The last bastion of hope for this small world.\n" ..
     "It must be protected at all costs!\n" ..
     "Alas, hordes of musterds creep in the shadows..."
 controlsText = "arrows - move | space - shoot"
