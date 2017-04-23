@@ -1,7 +1,3 @@
-function dst(x, y)
-    return math.sqrt(math.pow(x, 2) + math.pow(y, 2))
-end
-
 AnimSprite = {}
 AnimSprite.__index = AnimSprite
 local function newAnimSprite(img, tw, th, fpt, loop, x, y)

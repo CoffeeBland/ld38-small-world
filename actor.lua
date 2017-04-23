@@ -15,7 +15,6 @@ local function newPlayer(sprite, controls)
         shape = shape,
         fixture = fixture,
         speed = 10,
-        ty = 0,
         lastShoot = 0,
         movementX = 0,
         movementY = 0,
@@ -63,17 +62,10 @@ function Player:update(dt)
         self.movementX = self.movementX / len
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(self.movementX * self.speed, self.movementY * self.speed)
-
-        self.ty = (self.movementX ~= 0 and 6) or (self.movementY < 0 and 3) or 0
-        self.sprite.flipX = self.movementX < 0
-        self.sprite.ty = self.ty
-
         self.lastMovementX = self.movementX
         self.lastMovementY = self.movementY
-    else
-        self.sprite.ty = self.ty + 1
     end
-    self.sprite.fpt = 10 / (dst(self.body:getLinearVelocity())/600 + 1)
+    self.sprite:movement(self.movementX, self.movementY, self.body:getLinearVelocity())
     self.sprite:update(dt)
 end
 function Player:pos()
@@ -93,6 +85,7 @@ Enemy = {}
 Enemy.__index = Enemy
 local function newEnemy(type, x, y)
     local sprite = AnimSprite(enemyBasicImg, 48, 48, 4, true, 24, 32)
+    sprite.movement = wallabiMovement
     local body = love.physics.newBody(world, x, y, "dynamic")
     local shape = love.physics.newCircleShape(12)
     local fixture = love.physics.newFixture(body, shape, 1)
@@ -106,7 +99,6 @@ local function newEnemy(type, x, y)
         body = body,
         shape = shape,
         fixture = fixture,
-        ty = 0,
     }, Enemy)
 end
 setmetatable(Enemy, {
@@ -127,9 +119,12 @@ function Enemy:update(dt)
     -- Approch crustal
     local crustalX, crustalY = crustal:pos()
     local x, y = self:pos()
-    velX =((x < crustalX) and 4 or -4)
-    velY =((y < crustalY) and 4 or -4)
+    velX = ((abs(x - crustalX) < 16 and 0) or (x < crustalX) and 4 or -4)
+    velY = ((abs(y - crustalY) < 16 and 0) or (y < crustalY) and 4 or -4)
     self.body:applyLinearImpulse(velX, velY)
+
+    self.sprite:movement(velX, velY, self.body:getLinearVelocity())
+    self.sprite:update(dt)
 end
 
 

@@ -1,5 +1,6 @@
 love.graphics.setDefaultFilter("nearest", "nearest")
 
+abs = math.abs
 pi = math.pi
 cos = math.cos
 sin = math.sin
@@ -10,6 +11,9 @@ floor = math.floor
 ceil = math.ceil
 min = math.min
 max = math.max
+function dst(x, y)
+    return sqrt(pow(x, 2) + pow(y, 2))
+end
 
 PHYS_UNIT = 48
 CAT_FRIENDLY = 0x0002
@@ -32,6 +36,16 @@ crustcle = nil
 
 playerImg = love.graphics.newImage("imgs/wallabi.png")
 enemyBasicImg = love.graphics.newImage("imgs/enemy_basic.png")
+function wallabiMovement(self, movX, movY, speedX, speedY)
+    if movX ~= 0 or movY ~= 0 then
+        self.baseTy = (abs(movX) >= abs(movY) and 6) or (movY < 0 and 3) or 0
+        self.flipX = movX < 0
+        self.ty = self.baseTy
+    else
+        self.ty = (self.baseTy or 0) + 1
+    end
+    self.fpt = 10 / (dst(speedX, speedY) / 600 + 1)
+end
 
 function crustalCircle()
     love.graphics.polygon("fill", crustcle:poly(camera))
@@ -81,6 +95,7 @@ function love.load()
     camera = Camera()
 
     local sprite = AnimSprite(playerImg, 48, 48, 4, true, 24, 32)
+    sprite.movement = wallabiMovement
     player = Player(sprite, {
         up = "up",
         left = "left",
