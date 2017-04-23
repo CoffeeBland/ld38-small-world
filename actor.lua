@@ -94,7 +94,7 @@ Enemy.__index = Enemy
 local function newEnemy(type, x, y)
     local sprite = AnimSprite(enemyBasicImg, 48, 48, 4, true, 24, 32)
     local body = love.physics.newBody(world, x, y, "dynamic")
-    local shape = love.physics.newCircleShape(1)
+    local shape = love.physics.newCircleShape(24)
     local fixture = love.physics.newFixture(body, shape, 1)
     body:setFixedRotation(true)
     body:setLinearDamping(10)
@@ -124,8 +124,8 @@ function Enemy:update(dt)
     -- Approch crustal
     local crustalX, crustalY = crustal:pos()
     local x, y = self:pos()
-    velX =((x < crustalX) and 1 or -1)
-    velY =((y < crustalY) and 1 or -1)
+    velX =((x < crustalX) and 4 or -4)
+    velY =((y < crustalY) and 4 or -4)
     self.body:applyLinearImpulse(velX, velY)
 end
 

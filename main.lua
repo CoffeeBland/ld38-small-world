@@ -74,6 +74,7 @@ function love.load()
 
     love.physics.setMeter(PHYS_UNIT)
     world = love.physics.newWorld(0, 0, true)
+    world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
     camera = Camera()
 
@@ -161,4 +162,25 @@ function love.update(dt)
     local px, py = player:pos()
     local cx, cy = crustal:pos()
     camera.x, camera.y = (px+cx)/2, (py+cy)/2
+end
+
+function beginContact(a, b, coll)
+    -- x, y = coll:getNormal()
+    a = a:getUserData()
+    b = b:getUserData()
+    if a and a.collide ~= nil then
+        a.collide(b)
+    end
+    if b and b.collide ~= nil then
+        b.collide(a)
+    end
+end
+
+function endContact(a, b, coll)
+end
+
+function preSolve(a, b, coll)
+end
+
+function postSolve(a, b, coll, normalimpulse, tangentimpulse)
 end
