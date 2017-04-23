@@ -39,10 +39,10 @@ end
 
 local bulletImg = love.graphics.newImage("imgs/bullet.png")
 local bulletSprite = AnimSprite(bulletImg, 8, 8)
-function Bullet(x, y, dirX, dirY, initVelX, initVelY)
+function Bullet(x, y, dirX, dirY)
     local shape = love.physics.newCircleShape(8)
     p = Projectile(bulletSprite, x, y, shape, 5 * 60)
-    p.body:setLinearVelocity((dirX * 480) + initVelX, (dirY * 480) + initVelY)
+    p.body:setLinearVelocity(dirX * 480, dirY * 480)
     --p.fixture:setFilterData(CAT_FRIENDLY, 0, 0)
     p.fixture:setSensor(true)
 

@@ -38,17 +38,21 @@ end
 function Player:hold_right(dt)
     self.movementX = self.movementX + 1
 end
-function Player:begin_shoot(dt)
-    if self.shooting then
+function Player:begin_shoot(dt, k)
+    if self.sinceShot == 0 then
         return
     end
-    local velX, velY = self.body:getLinearVelocity()
-    addActor(Bullet(
-        self.body:getX(), self.body:getY(),
-        self.lastMovementX, self.lastMovementY,
-        velX, velY
-    ))
     self.sinceShot = 0
+
+    local fx, fy = 0, 0
+    if k == "w" then fy = -1 end
+    if k == "a" then fx = -1 end
+    if k == "s" then fy = 1 end
+    if k == "d" then fx = 1 end
+
+    addActor(Bullet(
+        self.body:getX(), self.body:getY(), fx, fy
+    ))
 end
 function Player:update(dt)
     self.movementX = 0
@@ -57,13 +61,13 @@ function Player:update(dt)
     for k, c in pairs(self.controls) do
         if love.keyboard.isDown(k) then
             if not self.keys[k] then
-                (self['begin_' .. c] or noop)(self, dt)
+                (self['begin_' .. c] or noop)(self, dt, k)
                 self.keys[k] = true
             end
-            (self['hold_' .. c] or noop)(self, dt)
+            (self['hold_' .. c] or noop)(self, dt, k)
         else
             if self.keys[k] then
-                (self['end_' .. c] or noop)(self, dt)
+                (self['end_' .. c] or noop)(self, dt, k)
                 self.keys[k] = false
             end
         end
