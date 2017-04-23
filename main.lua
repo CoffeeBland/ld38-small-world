@@ -42,6 +42,8 @@ gameoverText = 'FAILURE!'
 
 function love.load()
     love.window.setMode(800, 600, { resizable = true, vsync = true })
+    love.window.setTitle('Crustal')
+    love.window.setIcon(love.graphics.newImage('imgs/crustal.png'):getData())
     game.load()
     game.update(0)
     smallFont = love.graphics.newFont('Montserrat-Medium.ttf', 12)
