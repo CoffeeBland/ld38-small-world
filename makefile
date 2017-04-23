@@ -2,11 +2,11 @@ run: build
 	love ld38-small-world.love
 
 build:
-	zip -9 -r ld38-small-world.love main.lua *.lua imgs snds
+	zip -9 -r ld38-small-world.love main.lua *.lua imgs snds *.ttf
 
 build-windows:
 	./ensure-win.sh
-	zip -9 -r ld38-small-world.love main.lua *.lua imgs snds
+	zip -9 -r ld38-small-world.love main.lua *.lua imgs snds *.ttf
 	mkdir -p ld38-small-world
 	cat love-0.10.2-win32/love.exe ld38-small-world.love > ld38-small-world/crustal.exe
 	cp love-0.10.2-win32/*.dll ld38-small-world/
