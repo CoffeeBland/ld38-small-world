@@ -15,7 +15,7 @@ local function newTree(x, y)
     local body = love.physics.newBody(world, x, y, "static")
     local shape = love.physics.newCircleShape(8)
     local fixture = love.physics.newFixture(body, shape, 1)
-    return setmetatable({
+    local obj = setmetatable({
         x = 0,
         y = 0,
         body = body,
@@ -24,6 +24,10 @@ local function newTree(x, y)
         color = treeColor[1],
         leavesAlpha = 0,
     }, Tree)
+    local inside = crustal:inside(obj:pos())
+    obj.leavesAlpha = inside and 255 or 0
+    obj.color = inside and treeColor[2] or treeColor[1]
+    return obj
 end
 setmetatable(Tree, {
     __call = function(_, ...) return newTree(...) end
@@ -35,13 +39,9 @@ function Tree:getZ()
     return self.body:getY()
 end
 function Tree:update(dt)
-    if crustal:inside(self:pos()) then
-        self.leavesAlpha = min(self.leavesAlpha + 5, 255)
-        self.color = treeColor[2]
-    else
-        self.leavesAlpha = max(self.leavesAlpha - 10, 0)
-        self.color = treeColor[1]
-    end
+    local inside = crustal:inside(self:pos())
+    self.leavesAlpha = clamp(self.leavesAlpha + (inside and 5 or -10), 0, 255)
+    self.color = inside and treeColor[2] or treeColor[1]
 end
 function Tree:draw(camera)
     local cx, cy = camera:pos()
@@ -160,7 +160,4 @@ function Environment:update(dt)
     end
 
     self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3)
-end
-function Environment:getZ()
-    return 0
 end

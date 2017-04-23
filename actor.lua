@@ -1,7 +1,7 @@
 Player = {}
 Player.__index = Player
-local function newPlayer(sprite, controls)
-    local body = love.physics.newBody(world, 0, 0, "dynamic")
+local function newPlayer(sprite, controls, x, y)
+    local body = love.physics.newBody(world, x or 0, y or 0, "dynamic")
     local shape = love.physics.newCircleShape(12)
     local fixture = love.physics.newFixture(body, shape, 1)
     body:setFixedRotation(true)
@@ -143,7 +143,6 @@ function Enemy:update(dt)
     self.sprite:update(dt)
 end
 function Enemy:collide(other)
-    print(getmetatable(other), Crustal)
     if not self.shouldRemove and getmetatable(other) == Crustal then
         life = life - 3
         self.shouldRemove = true

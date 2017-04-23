@@ -47,7 +47,6 @@ function Bullet(x, y, dirX, dirY, initVelX, initVelY)
     p.fixture:setSensor(true)
 
     p.collide = function(self, other)
-        print(getmetatable(other), Enemy)
         if getmetatable(other) == Enemy then
             self.shouldRemove = true
             other.shouldRemove = true
