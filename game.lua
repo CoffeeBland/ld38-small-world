@@ -16,6 +16,8 @@ player = nil
 crustal = nil
 initialLife = 100
 life = nil
+alive = true
+timeLeft = nil
 shakes = {}
 shakeX = 0
 shakeY = 0
@@ -38,10 +40,12 @@ function damage(amount)
     shake(amount + 4, amount * 20)
 end
 function damageCrustal(amount)
+    if crustal.shouldRemove then return end
     crustal.damaged = crustal.damaged + floor(amount)
     damage(amount)
 end
 function damageTripod(amount)
+    if crustal.shouldRemove then return end
     player.damaged = player.damaged + floor(amount)
     damage(amount)
 end
@@ -74,6 +78,7 @@ function game.load()
 
     actors = {}
     life = initialLife
+    alive = true
 
     love.physics.setMeter(48)
     if world then
@@ -134,8 +139,9 @@ end
 function game.draw()
     local x, y = love.graphics.getDimensions()
 
+    local crx, cry = crustal:pos()
     local cx, cy = camera:pos()
-    shader:send("crustal", {crustal.body:getX() - cx, crustal.body:getY() - cy})
+    shader:send("crustal", { crx - cx, cry - cy })
     shader:send("lightDst", 256 * crustal.remaining + rand() * 4)
     love.graphics.setShader(shader)
 
@@ -195,12 +201,24 @@ function game.ui()
     end
 end
 function game.update(dt)
-    if life <= 0 then
-        state = 'bananas'
-        return
+    if alive then
+        if life <= 0 then
+            addActor(BlueBadaboum(crustal:pos()))
+            crustal.shouldRemove = true
+            shake(10, 100)
+            shake(20, 50)
+            shake(30, 20)
+            shake(60, 10)
+            alive = false
+            timeLeft = 60
+        end
+        score = score + 1
+    else
+        timeLeft = timeLeft - 1
+        if timeLeft <= 0 then
+            state = 'bananas'
+        end
     end
-
-    score = score + 1
 
     local shakeIntensity = 0
     for i = #shakes, 1, -1 do

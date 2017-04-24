@@ -19,7 +19,7 @@ local function newAnimSprite(img, tw, th, fpt, loop, x, y)
         quads = quads,
         flipX = false, flipY = false,
         img = img,
-        loop = loop or true,
+        loop = (loop == nil and true) or loop,
         fpt = fpt or 3,
         time = 0
     }, AnimSprite)

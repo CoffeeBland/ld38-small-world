@@ -79,7 +79,7 @@ function redExplosionDestroy(self)
     removeBody(self)
 end
 function RedExplosion(x, y)
-    local shape = love.physics.newCircleShape(20)
+    local shape = love.physics.newCircleShape(16)
     p = Projectile(AnimSprite(redBoomImg, 32, 32, 4), x, y, shape, 20)
     p.fixture:setSensor(true)
     p.collide = redExplosionCollide
@@ -139,6 +139,11 @@ end
 local blueBoomImg = love.graphics.newImage("imgs/blue-boom.png")
 function BlueBoom(x, y)
     return Projectile(AnimSprite(blueBoomImg, 24, 24, 6, false, 12, 24), x, y, nil, 18)
+end
+
+local blueBadaboum = love.graphics.newImage('imgs/blue-badaboum.png')
+function BlueBadaboum(x, y)
+    return Projectile(AnimSprite(blueBadaboum, 128, 128, 6, false), x, y, nil, 30)
 end
 
 Beam = {}

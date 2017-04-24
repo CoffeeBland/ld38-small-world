@@ -104,7 +104,7 @@ function Crustal:update(dt)
         pt:update(dt, self.pts[prevI], self.pts[nextI])
     end
 
-    self.remaining2 = 0.75 * life / initialLife + 0.25
+    self.remaining2 = life > 0 and (0.75 * life / initialLife + 0.25) or 0
     self.remaining = sqrt(self.remaining2)
     self.sprite:update(dt)
 end
@@ -112,6 +112,9 @@ function Crustal:getZ()
     return self.body:getY()
 end
 function Crustal:pos()
+    if self.body:isDestroyed() then
+        return self.lastPosX, self.lastPosY
+    end
     return self.body:getX(), self.body:getY()
 end
 function Crustal:poly(camera)
@@ -124,6 +127,10 @@ function Crustal:poly(camera)
         poly[i*2] = (math.sin(pt.a) * pt.r) * self.remaining + y - cy
     end
     return poly
+end
+function Crustal:destroy()
+    self.lastPosX, self.lastPosY = self:pos()
+    removeBody(self)
 end
 function Crustal:inside(x, y)
     local selfX, selfY = self:pos()

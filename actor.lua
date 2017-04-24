@@ -147,7 +147,7 @@ function Player:update(dt)
         end
     end
 
-    self.speed = self.sinceShot > 10 and 12 or 6
+    self.speed = self.sinceShot > 10 and 14 or 8
     Actor.update(self, dt)
 
     local x, y = self:pos()
@@ -258,7 +258,7 @@ blob = {
         local pX, pY = player:pos()
         if self.attacking <= 0 then
             local dst2P = dst(pX - x, pY - y)
-            if dst2P < 196 then
+            if dst2P < 256 then
                 self.attacking = 60
                 self.attackX = pX
                 self.attackY = pY
