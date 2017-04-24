@@ -49,6 +49,7 @@ local function newCrustal(size, x, y)
         size2 = pow(size, 2),
         remaining = 1,
         remaining2 = 1,
+        damaged = 0,
     }, Crustal)
     fixture:setCategory(CAT_FRIENDLY)
     fixture:setUserData(obj)
@@ -60,9 +61,14 @@ setmetatable(Crustal, {
 function Crustal:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
-    self.sprite:draw(x - cx, y - cy)
+    local col = (self.damaged > 0 and magenta) or (self.damaged < 0 and teal) or white
+    self.sprite:draw(x - cx, y - cy, col)
 end
 function Crustal:update(dt)
+    if self.damaged ~= 0 then
+        self.damaged = self.damaged - sign(self.damaged)
+    end
+
     local x, y = self:pos()
 
     self.body:setLinearVelocity(
@@ -100,6 +106,7 @@ function Crustal:update(dt)
 
     self.remaining2 = 0.75 * life / initialLife + 0.25
     self.remaining = sqrt(self.remaining2)
+    self.sprite:update(dt)
 end
 function Crustal:getZ()
     return self.body:getY()

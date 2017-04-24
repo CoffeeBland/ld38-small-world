@@ -46,12 +46,10 @@ end
 function Tree:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
-    love.graphics.setColor(self.color)
-    treeSprite:drawSpecific(x - cx, y - cy, 0, 0)
+    treeSprite:drawSpecific(x - cx, y - cy, 0, 0, self.color)
     if self.leavesAlpha > 0 then
         treeColor[3][4] = self.leavesAlpha
-        love.graphics.setColor(treeColor[3])
-        treeSprite:drawSpecific(x - cx, y - cy, 1, 0)
+        treeSprite:drawSpecific(x - cx, y - cy, 1, 0, treeColor[3])
     end
 end
 function Tree:destroy()
@@ -106,8 +104,8 @@ end
 function Chunk:draw(camera)
     local cx, cy = camera:pos()
     for i, p in pairs(self.props) do
-        love.graphics.setColor((crustal:inside(p.x, p.y) and p.good) or p.evil)
-        p.sprite:drawSpecific(p.x - cx, p.y - cy, p.tx, p.ty)
+        p.sprite:drawSpecific(p.x - cx, p.y - cy, p.tx, p.ty,
+            (crustal:inside(p.x, p.y) and p.good) or p.evil)
     end
 end
 
@@ -118,11 +116,11 @@ local function newEnvironment(chunkSize)
         chunkSize = chunkSize,
         chunks = {},
 
-        ttSpawnBasic = 1,
+        ttSpawnBasic = 60,
         spawnRateBasic = 1/3,
 
-        ttSpawnBlob = 1,
-        spawnRateBlob = 1/3,
+        ttSpawnBlob = 360,
+        spawnRateBlob = 1/6,
 
         ttSpawnHealth = 60*10,
         spawnRateHealth = 1/16,
@@ -190,8 +188,8 @@ function Environment:update(dt)
         self.ttSpawnSpecialWave = 60/self.spawnRateSpecialWave
     end
 
-    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 3) -- Max 3 basic per second
-    self.spawnRateBlob = min(self.spawnRateBlob + 0.0004, 3) -- Max 3 blob per second
+    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 5) -- Max 5 basic per second
+    self.spawnRateBlob = min(self.spawnRateBlob + 0.0003, 3) -- Max 3 blob per second
     self.spawnRateHealth = min(self.spawnRateHealth + 0.0001, 1/8) -- Max 1 health per 8 sec
     self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0002, 1/5) -- Max 1 special wave per 5 sec
 end

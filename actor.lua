@@ -15,6 +15,8 @@ local function newActor(sprite, radius, speed, x, y)
         speed = speed,
         movementX = 0,
         movementY = 0,
+        damaged = 0,
+        lastMovLen = 0,
     }, Actor)
     obj.fixture:setUserData(obj)
     return obj
@@ -34,15 +36,28 @@ end
 function Actor:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
-    self.sprite:draw(x - cx, y - cy)
+    if self.damaged > 0 then
+        self.sprite:draw(x - cx, y - cy, magenta)
+    else
+        self.sprite:draw(x - cx, y - cy)
+    end
 end
 function Actor:update(dt)
+    if self.damaged > 0 then
+        self.damaged = self.damaged - 1
+    end
+
     local len = dst(self.movementX, self.movementY)
     if len ~= 0 then
         self.movementX = self.movementX / len
         self.movementY = self.movementY / len
         self.body:applyLinearImpulse(self.movementX * self.speed, self.movementY * self.speed)
+        if self.lastMovLen < 0.1 then
+            self.sprite.tx = 0
+            self.sprite.time = 0
+        end
     end
+    self.lastMovLen = len
 
     local mx, my = self.body:getLinearVelocity()
     self.sprite:movement(self, self.movementX, self.movementY, mx, my)
@@ -98,6 +113,10 @@ function Player:begin_shoot(dt, k)
     if self.sinceShot == 0 then
         return
     end
+    if self.sinceShot >= 20 then
+        self.sprite.tx = 0
+        self.sprite.time = 0
+    end
     self.sinceShot = 0
 
     local fx, fy = 0, 0
@@ -128,14 +147,14 @@ function Player:update(dt)
         end
     end
 
+    self.speed = self.sinceShot > 10 and 12 or 6
     Actor.update(self, dt)
 
     local x, y = self:pos()
     if not crustal:inside(x, y) then
         self.outsideCrustalFor = self.outsideCrustalFor + 1
-        shake(8, 8)
         -- minus 3 life per s. accelerating up to 60 per s. after 10 s.
-        life = life - (self.outsideCrustalFor * (0.95 / 600) + 0.05)
+        damageTripod(self.outsideCrustalFor * (0.95 / 600) + 0.05)
     else
         self.outsideCrustalFor = 0
     end
@@ -166,7 +185,7 @@ function Enemy:hit(bullet)
     (self.type.hit or noop)(self, bullet)
 end
 function Enemy:destroy()
-    shake(6, 8)
+    (self.type.destroy or noop)(self)
     addActor(BloodSplatter(self:pos()))
     Actor.destroy(self)
 end
@@ -189,7 +208,7 @@ basic = {
     end,
     collide = function(self, other)
         if not self.shouldRemove and getmetatable(other) == Crustal then
-            life = life - 3
+            damageCrustal(5)
             self.shouldRemove = true
         end
     end,
@@ -219,7 +238,7 @@ blob = {
     end,
     spriteMovement = function(self, actor, movX, movY, speedX, speedY)
         if actor.attacking > 0 then
-            if actor.attacking > 30 then
+            if actor.attacking > 20 then
                 self.tx = 0
             else
                 self.tx = 1
@@ -244,7 +263,8 @@ blob = {
                 self.attackX = pX
                 self.attackY = pY
                 local ox, oy = self.type.beamOffset(self, x, y)
-                addActor(Beam(self, ox, oy, pX, pY - 32, blob.preBeamWidth, blob.beamColor, 30))
+                self.beam = Beam(self, ox, oy, pX, pY, blob.preBeamWidth, blob.beamColor, 40)
+                addActor(self.beam)
                 self.movementX = 0
                 self.movementY = 0
             else
@@ -253,10 +273,12 @@ blob = {
             end
         else
             self.attacking = self.attacking - 1
-            if self.attacking == 30 then
+            if self.attacking == 20 then
                 local ox, oy = self.type.beamOffset(self, x, y)
-                addActor(Beam(self, ox, oy, self.attackX, self.attackY - 32, blob.beamWidth, blob.beamColor, 30))
-                addActor(RedExplosion(self.attackX, self.attackY))
+                self.beam = Beam(self, ox, oy, self.attackX, self.attackY, blob.beamWidth, blob.beamColor, 20)
+                self.beamExplosion = RedExplosion(self.attackX, self.attackY)
+                addActor(self.beam)
+                addActor(self.beamExplosion)
             end
         end
     end,
@@ -264,8 +286,17 @@ blob = {
         bullet.shouldRemove = true
         if self.shouldRemove then return end
         self.hitpoint = self.hitpoint - 1
+        self.damaged = 8
         if self.hitpoint <= 0 then
             self.shouldRemove = true
+        end
+    end,
+    destroy = function(self)
+        if self.beam then
+            self.beam.shouldRemove = true
+        end
+        if self.beamExplosion then
+            self.beamExplosion.shouldRemove = true
         end
     end,
     radius = 22,
@@ -275,7 +306,7 @@ blob = {
             ((self.sprite.baseTy == 6 and 20) or 0) * (self.sprite.flipX and -1 or 1),
             (self.sprite.baseTy == 0 and -24) or (self.sprite.baseTy == 3 and -50) or -24
     end,
-    preBeamWidth = function(a) return 2 end,
+    preBeamWidth = function(a) return 1 end,
     beamWidth = function(a)
         return sin(a * pi) * (sin(a * 16 * pi) * 4 + 10)
     end,

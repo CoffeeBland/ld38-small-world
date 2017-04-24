@@ -29,12 +29,21 @@ playerImg = love.graphics.newImage("imgs/tripod.png")
 function tripodMovement(self, actor, movX, movY, speedX, speedY)
     local sinceShot = actor.sinceShot
     local moving = movX == 0 and movY == 0
-    self.ty = (sinceShot < 20 and (moving and 3 or 2)) or (moving and 1) or 0
-    self.fpt = 20 / (dst(speedX, speedY) / 600 + 1)
+    self.ty = (sinceShot < 10 and (moving and 3 or 2)) or (moving and 1) or 0
+    self.fpt = 20 / (dst(speedX, speedY) / 300 + 1)
 end
 
-function crustalCircle()
-    love.graphics.polygon("fill", crustal:poly(camera))
+function damage(amount)
+    life = max(min(life - amount, initialLife), 0)
+    shake(amount + 4, amount * 20)
+end
+function damageCrustal(amount)
+    crustal.damaged = crustal.damaged + floor(amount)
+    damage(amount)
+end
+function damageTripod(amount)
+    player.damaged = player.damaged + floor(amount)
+    damage(amount)
 end
 
 function addActor(p)
@@ -54,13 +63,9 @@ function removeBody(actor)
     end
 end
 
-function shakeSort(a, b)
-    return b[1] - a[1] > 0
-end
 -- duraction: frames, intensity: pixel amount
 function shake(duration, intensity)
     table.insert(shakes, { duration, intensity })
-    table.sort(shakes, shakeSort)
 end
 
 function game.load()
@@ -102,10 +107,11 @@ function game.load()
 
     shader = love.graphics.newShader[[
         uniform vec2 crustal;
+        uniform float lightDst;
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-            float dst = max(distance(crustal, screen_coords) - 256, 0);
+            float dst = max(distance(crustal, screen_coords) - lightDst, 0);
             vec4 col = Texel(texture, texture_coords) * color;
-            vec3 rgb = vec3(col) * max(1 - dst/512.0, 0.25);
+            vec3 rgb = vec3(col) * max(1 - sqrt(dst/512.0), 0.1);
             return vec4(rgb, col.a);
         }
     ]]
@@ -122,11 +128,15 @@ function zSort(a, b)
     return (b:getZ() - a:getZ()) > 0
 end
 
+function crustalCircle()
+    love.graphics.polygon("fill", crustal:poly(camera))
+end
 function game.draw()
     local x, y = love.graphics.getDimensions()
 
     local cx, cy = camera:pos()
     shader:send("crustal", {crustal.body:getX() - cx, crustal.body:getY() - cy})
+    shader:send("lightDst", 256 * crustal.remaining + rand() * 4)
     love.graphics.setShader(shader)
 
     love.graphics.push()
@@ -150,11 +160,14 @@ function game.draw()
 end
 function drawScore(w, h)
     love.graphics.setColor(255, 255, 255)
-    love.graphics.setFont(mediumFont)
-    love.graphics.print("Score", w - 36 - mediumFont:getWidth("Score"), 24)
+
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(white)
+    love.graphics.print("SCORE", w - 36 - smallFont:getWidth("SCORE"), 24)
+
     love.graphics.setFont(monoFont)
     local scoreText = tostring(currentScore())
-    love.graphics.print(scoreText, w - 36 - monoFont:getWidth(scoreText), 24 + mediumFont:getHeight())
+    love.graphics.print(scoreText, w - 36 - monoFont:getWidth(scoreText), 24 + smallFont:getHeight())
 end
 function game.ui()
     local w, h = love.graphics.getDimensions()
@@ -189,20 +202,19 @@ function game.update(dt)
 
     score = score + 1
 
+    local shakeIntensity = 0
     for i = #shakes, 1, -1 do
         local shake = shakes[i]
         shake[1] = shake[1] - 1
         if shake[1] <= 0 then
             table.remove(shakes, i)
+        else
+            shakeIntensity = shakeIntensity + shake[2]
         end
     end
-    if #shakes > 0 then
-        shakeX = (rand() - 0.5) * shakes[#shakes][2]
-        shakeY = (rand() - 0.5) * shakes[#shakes][2]
-    else
-        shakeX = 0
-        shakeY = 0
-    end
+    shakeIntensity = sqrt(shakeIntensity)
+    shakeX = (rand() - 0.5) * shakeIntensity
+    shakeY = (rand() - 0.5) * shakeIntensity
 
     for i = #actors, 1, -1 do
         local a = actors[i]

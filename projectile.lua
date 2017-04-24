@@ -60,7 +60,7 @@ function bulletDestroy(self)
 end
 function Bullet(x, y, dirX, dirY)
     local shape = love.physics.newCircleShape(8)
-    p = Projectile(AnimSprite(bulletImg, 12, 12, 2), x, y, shape, 5 * 60)
+    p = Projectile(AnimSprite(bulletImg, 12, 24, 2, true, 6, 20), x, y, shape, 3 * 60)
     p.body:setLinearVelocity(dirX * 480, dirY * 480)
     --p.fixture:setFilterData(CAT_FRIENDLY, 0, 0)
     p.fixture:setSensor(true)
@@ -72,8 +72,7 @@ end
 local redBoomImg = love.graphics.newImage("imgs/red-boom.png")
 function redExplosionCollide(self, other)
     if getmetatable(other) == Player then
-        life = life - 20
-        shake(8, 8)
+        damageTripod(20)
     end
 end
 function redExplosionDestroy(self)
@@ -81,7 +80,7 @@ function redExplosionDestroy(self)
 end
 function RedExplosion(x, y)
     local shape = love.physics.newCircleShape(20)
-    p = Projectile(AnimSprite(redBoomImg, 32, 32, 4, true, 16, 48), x, y, shape, 30)
+    p = Projectile(AnimSprite(redBoomImg, 32, 32, 4), x, y, shape, 20)
     p.fixture:setSensor(true)
     p.collide = redExplosionCollide
     p.destroy = redExplosionDestroy
@@ -93,7 +92,7 @@ local itemHealthSprite = AnimSprite(itemHealthImg, 32, 32)
 function itemHealthCollide(self, other)
     if getmetatable(other) == Player then
         self.shouldRemove = true
-        life = min(life + 20, initialLife)
+        damageCrustal(-20)
     end
 end
 function ItemHealth(x, y)
@@ -139,7 +138,7 @@ end
 
 local blueBoomImg = love.graphics.newImage("imgs/blue-boom.png")
 function BlueBoom(x, y)
-    return Projectile(AnimSprite(blueBoomImg, 24, 24, 6), x, y, nil, 18)
+    return Projectile(AnimSprite(blueBoomImg, 24, 24, 6, false, 12, 24), x, y, nil, 18)
 end
 
 Beam = {}

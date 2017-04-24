@@ -10,21 +10,18 @@ math.randomseed(love.timer.getTime())
 rand = math.random
 floor = math.floor
 ceil = math.ceil
-function round(x)
-    return -ceil(-x)
-end
+function sign(x) return (x < 0 and -1) or (x > 0 and 1) or 0 end
+function round(x) return -ceil(-x) end
 min = math.min
 max = math.max
-function clamp(x, m, M)
-    return max(min(x, M), m)
-end
-function dst(x, y)
-    return sqrt(pow(x, 2) + pow(y, 2))
-end
-function dst2(x, y)
-    return pow(x, 2) + pow(y, 2)
-end
+function clamp(x, m, M) return max(min(x, M), m) end
+function dst(x, y) return sqrt(dst2(x, y)) end
+function dst2(x, y) return pow(x, 2) + pow(y, 2) end
 function noop() end
+white = { 255, 255, 255 }
+magenta = {255, 0, 96}
+blue = {23, 34, 255}
+teal = {0, 255, 255}
 
 require('game')
 state = 'splash'
@@ -96,9 +93,9 @@ end
 
 function shadowRender(text, x, y, w, s)
     s = s or 2
-    love.graphics.setColor(0, 0, 255)
+    love.graphics.setColor(blue)
     love.graphics.printf(text, x - s, y - s, w, 'center')
-    love.graphics.setColor(255, 0, 200)
+    love.graphics.setColor(magenta)
     love.graphics.printf(text, x + s, y + s, w, 'center')
     love.graphics.setColor(255, 255, 255)
     love.graphics.printf(text, x, y, w, 'center')
@@ -106,9 +103,10 @@ end
 function love.draw()
     if state == 'splash' then
         local w, h = love.graphics.getDimensions()
-        love.graphics.setColor(255, 255, 255, 230)
+        love.graphics.setColor(72, 72, 72)
         love.graphics.rectangle('fill', 0, 0, w, h)
         local logoX, logoY = coffeeBlandLogoImg:getDimensions()
+        love.graphics.setColor(255, 255, 255)
         love.graphics.draw(coffeeBlandLogoImg, w/2 - logoX/2, h/2 - logoY/2)
 
         -- fade in

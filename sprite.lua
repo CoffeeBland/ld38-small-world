@@ -37,8 +37,8 @@ function AnimSprite:update(dt)
         self.tx = (self.tx + 1) % self.txs
     end
 end
-function AnimSprite:draw(x, y)
-    love.graphics.setColor(255, 255, 255)
+function AnimSprite:draw(x, y, col)
+    love.graphics.setColor(col or white)
     love.graphics.draw(self.img,
         self.quads[self.tx][self.ty],
         x, y,
@@ -46,7 +46,8 @@ function AnimSprite:draw(x, y)
         (self.flipX and -1) or 1, (self.flipY and -1) or 1,
         self.x, self.y)
 end
-function AnimSprite:drawSpecific(x, y, tx, ty)
+function AnimSprite:drawSpecific(x, y, tx, ty, col)
+    love.graphics.setColor(col or white)
     love.graphics.draw(self.img,
         self.quads[tx][ty],
         x, y,
