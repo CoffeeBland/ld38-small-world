@@ -32,7 +32,8 @@ smallFont = nil
 mediumFont = nil
 largeFont = nil
 coffeeBlandLogoImg = love.graphics.newImage("imgs/coffeebland.png")
-splashFrames = 480
+splashFrames = 300
+splashAlphaFrames = 60
 splashFrame = 0
 
 titleText = 'CRUSTAL'
@@ -57,8 +58,6 @@ end
 function love.update(dt)
     if state == "splash" then
         splashFrame = splashFrame + 1
-
-        -- wait 6 seconds
         if splashFrame >= splashFrames then
             state = "title"
         end
@@ -105,31 +104,27 @@ function shadowRender(text, x, y, w, s)
     love.graphics.printf(text, x, y, w, 'center')
 end
 function love.draw()
+    local x, y = love.graphics.getDimensions()
     if state == 'splash' then
-        local w, h = love.graphics.getDimensions()
+
         love.graphics.setColor(72, 72, 72)
-        love.graphics.rectangle('fill', 0, 0, w, h)
+        love.graphics.rectangle('fill', 0, 0, x, y)
+
         local logoX, logoY = coffeeBlandLogoImg:getDimensions()
         love.graphics.setColor(255, 255, 255)
-        love.graphics.draw(coffeeBlandLogoImg, w/2 - logoX/2, h/2 - logoY/2)
+        love.graphics.draw(coffeeBlandLogoImg, x/2 - logoX/2, y/2 - logoY/2)
 
         -- fade in
-        local alpha = 255
-        if splashFrame < 120 then
-            alpha = 255 - ((splashFrame / 120) * 255)
-        elseif splashFrame < (splashFrames-120) then
-            alpha = 0
-        else
-            alpha = ((splashFrame-(splashFrames-120)) / 120) * 255
-        end
-        love.graphics.setColor(0, 0, 0, alpha)
-        love.graphics.rectangle('fill', 0, 0, w, h)
+        local alpha = 1 - min(splashFrame, splashFrames - 30 - splashFrame) / splashAlphaFrames
+        love.graphics.setColor(0, 0, 0, alpha * 255)
+        love.graphics.setShader(shader)
+        love.graphics.rectangle('fill', 0, 0, x, y)
+        love.graphics.setShader()
         return
     end
 
     game.draw()
     if state ~= 'game' then
-        local x, y = love.graphics.getDimensions()
         love.graphics.setColor(0, 0, 0, 170)
         love.graphics.rectangle('fill', 0, 0, x, y)
 

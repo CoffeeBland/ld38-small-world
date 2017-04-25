@@ -114,20 +114,29 @@ function game.load()
         uniform vec2 crustal;
         uniform vec2 screen_size;
         uniform float light_dst;
-        bool dither(vec4 col, vec2 coords) {
-            float a = col.a < 0.5 ? col.a : (1 - col.a);
-            bool filter = mod(int(coords.x + coords.y * screen_size.x), ceil(1.0 / a)) == 0;
-            return (col.a <= 0.5 && !filter) || (col.a > 0.5 && filter);
+
+        const mat4x4 thresholdMatrix = mat4x4(
+             1.0/17.0,  9.0/17.0,  3.0/17.0, 11.0/17.0,
+            13.0/17.0,  5.0/17.0, 15.0/17.0,  7.0/17.0,
+             4.0/17.0, 12.0/17.0,  2.0/17.0, 10.0/17.0,
+            16.0/17.0,  8.0/17.0, 14.0/17.0,  6.0/17.0
+        );
+
+        bool dither(float val, vec2 coords) {
+            int x = int(mod(coords.x, 4));
+            int y = int(mod(coords.y, 4));
+            return thresholdMatrix[x][y] > val;
         }
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-            if (color.a == 0 || (color.a < 1 && dither(color, screen_coords))) return vec4(0.0);
+            if (color.a == 0 || (color.a < 1 && dither(color.a, screen_coords))) return vec4(0.0);
             float dst = max(distance(crustal, screen_coords) - light_dst, 0);
             vec4 tex = Texel(texture, texture_coords);
             vec4 col = tex * vec4(vec3(color), 1.0);
-            if (col.r > 0.5 || col.b > 0.5) return col;
-            vec3 rgb = vec3(col) * max(1 - sqrt(dst/388.0), 0);
+            // Bright reds & blues aren't affected by lighting
+            if (col.r > 0.5) return col;
+            float light = max(1 - sqrt(dst/388.0), 0.1);
+            return vec4(vec3(col) * light, col.a);
 
-            return vec4(rgb, col.a);
         }
     ]]
 
@@ -152,8 +161,8 @@ function game.draw()
     local crx, cry = crustal:pos()
     local cx, cy = camera:pos()
     shader:send("crustal", { crx - cx, cry - cy })
-    shader:send("light_dst", 256 * crustal.remaining + rand() * 4)
-    shader:send("screen_size", { x, y })
+    shader:send("light_dst", 256 * crustal.remaining)
+    --shader:send("screen_size", { x, y })
     love.graphics.setShader(shader)
 
     love.graphics.push()
