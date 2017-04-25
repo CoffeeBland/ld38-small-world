@@ -112,7 +112,6 @@ function game.load()
 
     shader = love.graphics.newShader[[
         uniform vec2 crustal;
-        uniform vec2 screen_size;
         uniform float light_dst;
 
         const mat4x4 thresholdMatrix = mat4x4(
@@ -128,13 +127,13 @@ function game.load()
             return thresholdMatrix[x][y] > val;
         }
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-            if (color.a == 0 || (color.a < 1 && dither(color.a, screen_coords))) return vec4(0.0);
+            if (color.a == 0 || (color.a < 1 && dither(color.a, screen_coords))) return vec4(0);
             float dst = max(distance(crustal, screen_coords) - light_dst, 0);
             vec4 tex = Texel(texture, texture_coords);
-            vec4 col = tex * vec4(vec3(color), 1.0);
-            // Bright reds & blues aren't affected by lighting
-            if (col.r > 0.5) return col;
-            float light = max(1 - sqrt(dst/388.0), 0.1);
+            vec4 col = tex * vec4(vec3(color), 1);
+            // the evil magenta isn't affected by lighting
+            if (col.r > 0.9 && col.g < 0.1 && col.b < 0.5) return col;
+            float light = round(max(1 - sqrt(dst/388), 0.1) * 8) / 8;
             return vec4(vec3(col) * light, col.a);
 
         }
@@ -162,18 +161,17 @@ function game.draw()
     local cx, cy = camera:pos()
     shader:send("crustal", { crx - cx, cry - cy })
     shader:send("light_dst", 256 * crustal.remaining)
-    --shader:send("screen_size", { x, y })
     love.graphics.setShader(shader)
 
     love.graphics.push()
     love.graphics.translate(shakeX, shakeY)
 
-    love.graphics.setColor(100, 67, 93)
+    love.graphics.setColor(dirt)
     love.graphics.rectangle("fill", 0, 0, x, y)
 
     love.graphics.stencil(crustalCircle, "invert", 1)
     love.graphics.setStencilTest("greater", 0)
-    love.graphics.setColor(86, 186, 112)
+    love.graphics.setColor(grass)
     love.graphics.rectangle("fill", 0, 0, x, y)
     love.graphics.setStencilTest()
 

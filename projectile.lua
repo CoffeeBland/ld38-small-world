@@ -1,6 +1,6 @@
 Projectile = {}
 Projectile.__index = Projectile
-local function newProjectile(sprite, x, y, shape, ttl, helpText)
+local function newProjectile(sprite, x, y, shape, ttl, fadein)
     local body = love.physics.newBody(world, x, y, "kinematic")
     body:setFixedRotation(true)
     local obj = setmetatable({
@@ -8,7 +8,8 @@ local function newProjectile(sprite, x, y, shape, ttl, helpText)
         body = body,
         shape = shape,
         ttl = ttl,
-        helpText = helpText,
+        totalTtl = ttl,
+        fadein = fadein or 0,
     }, Projectile)
     if shape then
         obj.fixture = love.physics.newFixture(body, shape, 1)
@@ -22,13 +23,9 @@ setmetatable(Projectile, {
 function Projectile:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
-    self.sprite:draw(x - cx, y - cy)
-    if self.helpText then
-        local textW = smallFont:getWidth(self.helpText)
-        love.graphics.setFont(smallFont)
-        love.graphics.setColor(255, 255, 230, 160)
-        love.graphics.print(self.helpText, x - cx - (textW / 2), y - cy - self.sprite.th)
-    end
+    white[4] = min(self.ttl, self.totalTtl - self.ttl) / self.fadein * 255
+    self.sprite:draw(x - cx, y - cy, white)
+    white[4] = 255
 end
 function Projectile:getZ()
     return self.body:getY()
@@ -98,7 +95,7 @@ end
 function ItemHealth(x, y)
     local shape = love.physics.newCircleShape(20)
     local ttl = 8 * 60 -- Disapear after 8 sec
-    p = Projectile(itemHealthSprite, x, y, shape, ttl)
+    p = Projectile(itemHealthSprite, x, y, shape, ttl, 30)
     p.fixture:setSensor(true)
     p.collide = itemHealthCollide
     return p
@@ -115,7 +112,7 @@ end
 function ItemSpecialWave(x, y)
     local shape = love.physics.newCircleShape(20)
     local ttl = 4 * 60 -- Disapear after 4 sec
-    p = Projectile(itemSpecialWaveSprite, x, y, shape, ttl)
+    p = Projectile(itemSpecialWaveSprite, x, y, shape, ttl, 30)
     p.fixture:setSensor(true)
     p.collide = itemSpecialWaveCollide
     return p

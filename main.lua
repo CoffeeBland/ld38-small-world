@@ -24,6 +24,8 @@ white = { 255, 255, 255 }
 magenta = {255, 0, 96}
 blue = {23, 34, 255}
 teal = {0, 255, 255}
+grass = {86, 186, 112}
+dirt = {100, 67, 93}
 
 require('game')
 state = 'splash'

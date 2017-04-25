@@ -41,8 +41,8 @@ local function newCrustal(size, x, y)
         shape = shape,
         fixture, fixture,
         lastSparkle = 0,
-        targetX = (x or 0) + ((rand() - 0.5) * CRUSTAL_TARGET_SIZE),
-        targetY = (y or 0) + ((rand() - 0.5) * CRUSTAL_TARGET_SIZE),
+        targetX = (x or 0),
+        targetY = (y or 0),
         sprite = AnimSprite(img, 24, 32, 30, true, 12, 24),
         pts = pts,
         size = size,
@@ -50,6 +50,7 @@ local function newCrustal(size, x, y)
         remaining = 1,
         remaining2 = 1,
         damaged = 0,
+        speed = 60,
     }, Crustal)
     fixture:setCategory(CAT_FRIENDLY)
     fixture:setUserData(obj)
@@ -64,6 +65,11 @@ function Crustal:draw(camera)
     local col = (self.damaged > 0 and magenta) or (self.damaged < 0 and teal) or white
     self.sprite:draw(x - cx, y - cy, col)
 end
+function Crustal:findNextTarget()
+    local x, y = self:pos()
+    self.targetX = (x + ((rand()-0.5) * CRUSTAL_TARGET_SIZE))
+    self.targetY = (y + ((rand()-0.5) * CRUSTAL_TARGET_SIZE))
+end
 function Crustal:update(dt)
     if self.damaged ~= 0 then
         self.damaged = self.damaged - sign(self.damaged)
@@ -71,14 +77,13 @@ function Crustal:update(dt)
 
     local x, y = self:pos()
 
-    self.body:setLinearVelocity(
-        ((x < self.targetX) and 60 or -60),
-        ((y < self.targetY) and 60 or -60))
-
     if (dst2(self.targetX - x, self.targetY - y) < 400) then
-        self.targetX = x + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
-        self.targetY = y + ((rand()-0.5) * CRUSTAL_TARGET_SIZE)
+        self:findNextTarget()
     end
+
+    self.body:setLinearVelocity(
+        ((x < self.targetX) and self.speed or -self.speed),
+        ((y < self.targetY) and self.speed or -self.speed))
 
     -- Leave a trail of sparkles
     local t = love.timer.getTime()

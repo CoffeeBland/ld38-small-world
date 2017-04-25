@@ -88,16 +88,17 @@ local function newChunk(x, y, w, h)
             sprite = propsSprite,
         }
     end
-    local trees = {}
+    local actors = {}
     for i = 1, pow(rand(), 2) * 20 do
         local tree = Tree(x + rand() * w, y + rand() * h)
-        trees[i] = tree
+        table.insert(actors, tree)
         addActor(tree)
     end
     return setmetatable({
       x = x,
       y = y,
-      props = props
+      props = props,
+      actors = actors
     }, Chunk)
 end
 setmetatable(Chunk, {
@@ -194,8 +195,8 @@ function Environment:update(dt)
         self.ttSpawnSpecialWave = 60/self.spawnRateSpecialWave
     end
 
-    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 5) -- Max 5 basic per second
-    self.spawnRateBlob = min(self.spawnRateBlob + 0.0003, 3) -- Max 3 blob per second
+    self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 6) -- Max 6 basic per second
+    self.spawnRateBlob = min(self.spawnRateBlob + 0.0001, 3) -- Max 3 blob per second
     self.spawnRateHealth = min(self.spawnRateHealth + 0.0001, 1/8) -- Max 1 health per 8 sec
     self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0002, 1/5) -- Max 1 special wave per 5 sec
 end
