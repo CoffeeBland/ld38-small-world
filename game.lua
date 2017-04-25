@@ -97,14 +97,14 @@ function game.load()
         down = "down",
         right = "right",
         space = "special",
-        w = "shoot",
-        a = "shoot",
-        s = "shoot",
-        d = "shoot",
+        w = "shootUp",
+        a = "shootLeft",
+        s = "shootDown",
+        d = "shootRight",
     }, (rand() - 0.5) * 128, (rand() - 0.5) * 128)
     addActor(player)
 
-    environment = Environment(256)
+    environment = Environment(512)
     addActor(environment)
 
     crustal = Crustal(192)
@@ -112,11 +112,21 @@ function game.load()
 
     shader = love.graphics.newShader[[
         uniform vec2 crustal;
-        uniform float lightDst;
+        uniform vec2 screen_size;
+        uniform float light_dst;
+        bool dither(vec4 col, vec2 coords) {
+            float a = col.a < 0.5 ? col.a : (1 - col.a);
+            bool filter = mod(int(coords.x + coords.y * screen_size.x), ceil(1.0 / a)) == 0;
+            return (col.a <= 0.5 && !filter) || (col.a > 0.5 && filter);
+        }
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-            float dst = max(distance(crustal, screen_coords) - lightDst, 0);
-            vec4 col = Texel(texture, texture_coords) * color;
-            vec3 rgb = vec3(col) * max(1 - sqrt(dst/512.0), 0.1);
+            if (color.a == 0 || (color.a < 1 && dither(color, screen_coords))) return vec4(0.0);
+            float dst = max(distance(crustal, screen_coords) - light_dst, 0);
+            vec4 tex = Texel(texture, texture_coords);
+            vec4 col = tex * vec4(vec3(color), 1.0);
+            if (col.r > 0.5 || col.b > 0.5) return col;
+            vec3 rgb = vec3(col) * max(1 - sqrt(dst/388.0), 0);
+
             return vec4(rgb, col.a);
         }
     ]]
@@ -142,7 +152,8 @@ function game.draw()
     local crx, cry = crustal:pos()
     local cx, cy = camera:pos()
     shader:send("crustal", { crx - cx, cry - cy })
-    shader:send("lightDst", 256 * crustal.remaining + rand() * 4)
+    shader:send("light_dst", 256 * crustal.remaining + rand() * 4)
+    shader:send("screen_size", { x, y })
     love.graphics.setShader(shader)
 
     love.graphics.push()

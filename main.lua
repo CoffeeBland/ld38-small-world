@@ -1,4 +1,6 @@
 love.graphics.setDefaultFilter("nearest", "nearest")
+love.window.setMode(800, 600, { resizable = true, vsync = true, fullscreen = true })
+love.mouse.setVisible(false)
 
 abs = math.abs
 pi = math.pi
@@ -38,11 +40,10 @@ promptText = 'PRESS SPACE OR ENTER TO BEGIN'
 explanationText = "The CRUSTAL! The last bastion of hope for this small world.\n" ..
     "It must be protected at all costs!\n" ..
     "Alas, hordes of musterds creep in the shadows..."
-controlsText = "arrows - move | w a s d - shoot"
+controlsText = "arrows - move | w a s d - shoot | lshift - diagonal"
 gameoverText = 'FAILURE!'
 
 function love.load()
-    love.window.setMode(800, 600, { resizable = true, vsync = true })
     love.window.setTitle('Crustal')
     love.window.setIcon(love.graphics.newImage('imgs/crustal.png'):getData())
     game.load()
@@ -68,6 +69,9 @@ function love.update(dt)
     end
 end
 function love.keypressed(key)
+    if key == 'f11' then
+        love.window.setFullscreen(not love.window.getFullscreen())
+    end
     if state == 'game' then
         if key == 'escape' then
             state = 'pause'
@@ -145,8 +149,8 @@ function love.draw()
             shadowRender(promptText, 0, y / 2, x)
             drawScore(x, y)
         elseif state == 'pause' then
-            love.graphics.setFont(mediumFont)
-            shadowRender('PAUSED', 0, y / 2, x)
+            love.graphics.setFont(largeFont)
+            shadowRender('PAUSED', 0, (y - largeFont:getHeight()) / 2, x)
             drawScore(x, y)
         end
         love.graphics.setFont(smallFont)

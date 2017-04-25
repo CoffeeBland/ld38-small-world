@@ -37,7 +37,10 @@ function Actor:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
     if self.damaged > 0 then
+        self.sprite:draw(x - cx, y - cy)
+        love.graphics.setBlendMode('add')
         self.sprite:draw(x - cx, y - cy, magenta)
+        love.graphics.setBlendMode('alpha')
     else
         self.sprite:draw(x - cx, y - cy)
     end
@@ -109,7 +112,19 @@ function Player:begin_special(dt)
         end
     end
 end
-function Player:begin_shoot(dt, k)
+function Player:begin_shootUp(dt, k)
+    self:begin_shoot(dt, k, love.keyboard.isDown('lshift') and -1 or 0, -1)
+end
+function Player:begin_shootLeft(dt, k)
+    self:begin_shoot(dt, k, -1, love.keyboard.isDown('lshift') and 1 or 0)
+end
+function Player:begin_shootDown(dt, k)
+    self:begin_shoot(dt, k, love.keyboard.isDown('lshift') and 1 or 0, 1)
+end
+function Player:begin_shootRight(dt, k)
+    self:begin_shoot(dt, k, 1, love.keyboard.isDown('lshift') and -1 or 0)
+end
+function Player:begin_shoot(dt, k, fx, fy)
     if self.sinceShot == 0 then
         return
     end
@@ -119,12 +134,14 @@ function Player:begin_shoot(dt, k)
     end
     self.sinceShot = 0
 
-    local fx, fy = 0, 0
-    if k == "w" then fy = -1 end
-    if k == "a" then fx = -1 end
-    if k == "s" then fy = 1 end
-    if k == "d" then fx = 1 end
-
+    fx = fx or 0
+    fy = fy or 0
+    -- normalise the direction
+    local dstF = dst(fx, fy)
+    if dstF ~= 0 then
+        fx = fx / dstF
+        fy = fy / dstF
+    end
     addActor(Bullet(self.body:getX(), self.body:getY(), fx, fy))
 end
 function Player:update(dt)
@@ -177,6 +194,12 @@ setmetatable(Enemy, {
 function Enemy:update(dt)
     (self.type.update or noop)(self, dt)
     Actor.update(self, dt)
+    local x, y = self:pos()
+    local pX, pY = player:pos()
+    local dst2P = dst2(pX - x, pY - y)
+    if dst2P > 800 * 800 then
+        self.shouldRemove = true
+    end
 end
 function Enemy:collide(other)
     (self.type.collide or noop)(self, other)
@@ -186,7 +209,6 @@ function Enemy:hit(bullet)
 end
 function Enemy:destroy()
     (self.type.destroy or noop)(self)
-    addActor(BloodSplatter(self:pos()))
     Actor.destroy(self)
 end
 
@@ -211,6 +233,9 @@ basic = {
             damageCrustal(5)
             self.shouldRemove = true
         end
+    end,
+    destroy = function(self)
+        addActor(BloodSplatter(self:pos()))
     end,
     update = function(self, dt)
         local crustalX, crustalY = crustal:pos()
@@ -257,8 +282,8 @@ blob = {
         local x, y = self:pos()
         local pX, pY = player:pos()
         if self.attacking <= 0 then
-            local dst2P = dst(pX - x, pY - y)
-            if dst2P < 256 then
+            local dst2P = dst2(pX - x, pY - y)
+            if dst2P < (256 * 256) then
                 self.attacking = 60
                 self.attackX = pX
                 self.attackY = pY
@@ -298,9 +323,10 @@ blob = {
         if self.beamExplosion then
             self.beamExplosion.shouldRemove = true
         end
+        addActor(BloodSplatterBig(self:pos()))
     end,
     radius = 22,
-    speed = 8,
+    speed = 14,
     beamOffset = function(self, x, y)
         return
             ((self.sprite.baseTy == 6 and 20) or 0) * (self.sprite.flipX and -1 or 1),

@@ -18,6 +18,7 @@ local function newTree(x, y)
     local obj = setmetatable({
         x = 0,
         y = 0,
+        flip = rand() < 0.5,
         body = body,
         shape = shape,
         fixture = fixture,
@@ -46,10 +47,10 @@ end
 function Tree:draw(camera)
     local cx, cy = camera:pos()
     local x, y = self:pos()
-    treeSprite:drawSpecific(x - cx, y - cy, 0, 0, self.color)
+    treeSprite:drawSpecific(x - cx, y - cy, 0, 0, self.flip, false, self.color)
     if self.leavesAlpha > 0 then
         treeColor[3][4] = self.leavesAlpha
-        treeSprite:drawSpecific(x - cx, y - cy, 1, 0, treeColor[3])
+        treeSprite:drawSpecific(x - cx, y - cy, 1, 0, self.flip, false, treeColor[3])
     end
 end
 function Tree:destroy()
@@ -70,7 +71,7 @@ local propsColors = {
 }
 local function newChunk(x, y, w, h)
     local props = {}
-    for i = 0, rand(20) do
+    for i = 1, rand(80) do
         local ty
         if rand() < 0.75 then
             ty = 0
@@ -87,7 +88,12 @@ local function newChunk(x, y, w, h)
             sprite = propsSprite,
         }
     end
-    addActor(Tree(x + rand() * w, y + rand() * h))
+    local trees = {}
+    for i = 1, pow(rand(), 2) * 20 do
+        local tree = Tree(x + rand() * w, y + rand() * h)
+        trees[i] = tree
+        addActor(tree)
+    end
     return setmetatable({
       x = x,
       y = y,
@@ -104,7 +110,7 @@ end
 function Chunk:draw(camera)
     local cx, cy = camera:pos()
     for i, p in pairs(self.props) do
-        p.sprite:drawSpecific(p.x - cx, p.y - cy, p.tx, p.ty,
+        p.sprite:drawSpecific(p.x - cx, p.y - cy, p.tx, p.ty, false, false,
             (crustal:inside(p.x, p.y) and p.good) or p.evil)
     end
 end

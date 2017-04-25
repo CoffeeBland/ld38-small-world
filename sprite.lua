@@ -46,12 +46,12 @@ function AnimSprite:draw(x, y, col)
         (self.flipX and -1) or 1, (self.flipY and -1) or 1,
         self.x, self.y)
 end
-function AnimSprite:drawSpecific(x, y, tx, ty, col)
+function AnimSprite:drawSpecific(x, y, tx, ty, fx, fy, col)
     love.graphics.setColor(col or white)
     love.graphics.draw(self.img,
         self.quads[tx][ty],
         x, y,
         0,
-        (self.flipX and -1) or 1, (self.flipY and -1) or 1,
+        (fx and -1) or 1, (fy and -1) or 1,
         self.x, self.y)
 end

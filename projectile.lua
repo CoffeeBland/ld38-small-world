@@ -96,7 +96,7 @@ function itemHealthCollide(self, other)
     end
 end
 function ItemHealth(x, y)
-    local shape = love.physics.newCircleShape(16)
+    local shape = love.physics.newCircleShape(20)
     local ttl = 8 * 60 -- Disapear after 8 sec
     p = Projectile(itemHealthSprite, x, y, shape, ttl)
     p.fixture:setSensor(true)
@@ -113,7 +113,7 @@ function itemSpecialWaveCollide(self, other)
     end
 end
 function ItemSpecialWave(x, y)
-    local shape = love.physics.newCircleShape(16)
+    local shape = love.physics.newCircleShape(20)
     local ttl = 4 * 60 -- Disapear after 4 sec
     p = Projectile(itemSpecialWaveSprite, x, y, shape, ttl)
     p.fixture:setSensor(true)
@@ -134,6 +134,11 @@ end
 local bloodSplatterImg = love.graphics.newImage("imgs/blood-splatter.png")
 function BloodSplatter(x, y)
     return Projectile(AnimSprite(bloodSplatterImg, 48, 48, 4), x, y, nil, 16)
+end
+
+local bloodSplatterBigImg = love.graphics.newImage("imgs/blood-splatter-big.png")
+function BloodSplatterBig(x, y)
+    return Projectile(AnimSprite(bloodSplatterBigImg, 96, 96, 6, true, 48, 64), x, y, nil, 24)
 end
 
 local blueBoomImg = love.graphics.newImage("imgs/blue-boom.png")
