@@ -104,6 +104,11 @@ end
 setmetatable(Chunk, {
     __call = function(_, ...) return newChunk(...) end
 })
+function Chunk:unload()
+    for i, a in pairs(self.actors) do
+        a.shouldRemove = true
+    end
+end
 function Chunk:update(dt) end
 function Chunk:pos()
     return self.x, self.y
@@ -155,9 +160,20 @@ function Environment:draw(camera)
                 chunk = Chunk(i * cs, j * cs, cs, cs)
                 self.chunks[i][j] = chunk
             end
+            chunk.visited = true
             chunk:draw(camera)
         end
     end
+    --for i, col in pairs(self.chunks) do
+    --    for j, chunk in pairs(col) do
+    --        if not chunk.visited then
+    --            print("Unloading")
+    --            chunk:unload()
+    --            self.chunks[i][j] = nil
+    --        end
+    --        chunk.visited = false
+    --    end
+    --end
 end
 function Environment:update(dt)
     self.ttSpawnBasic = self.ttSpawnBasic - 1

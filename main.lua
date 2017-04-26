@@ -34,8 +34,8 @@ smallFont = nil
 mediumFont = nil
 largeFont = nil
 coffeeBlandLogoImg = love.graphics.newImage("imgs/coffeebland.png")
-splashFrames = 300
-splashAlphaFrames = 60
+splashFrames = 360
+splashAlphaFrames = 120
 splashFrame = 0
 
 titleText = 'CRUSTAL'

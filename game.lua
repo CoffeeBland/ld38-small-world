@@ -122,8 +122,8 @@ function game.load()
         );
 
         bool dither(float val, vec2 coords) {
-            int x = int(mod(coords.x, 4));
-            int y = int(mod(coords.y, 4));
+            int x = int(mod(coords.x/2, 4));
+            int y = int(mod(coords.y/2, 4));
             return thresholdMatrix[x][y] > val;
         }
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
