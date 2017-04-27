@@ -127,6 +127,7 @@ function game.load()
             return thresholdMatrix[x][y] > val;
         }
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+            if (screen_coords.x < 0) color[int(screen_coords.x)] = 2;
             if (color.a == 0 || (color.a < 1 && dither(color.a, screen_coords))) return vec4(0);
             float dst = max(distance(crustal, screen_coords) - light_dst, 0);
             vec4 tex = Texel(texture, texture_coords);

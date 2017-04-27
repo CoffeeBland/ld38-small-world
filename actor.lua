@@ -329,7 +329,7 @@ blob = {
     speed = 14,
     beamOffset = function(self, x, y)
         return
-            ((self.sprite.baseTy == 6 and 20) or 0) * (self.sprite.flipX and -1 or 1),
+            ((self.sprite.baseTy == 6 and 20) or 3) * (self.sprite.flipX and -1 or 1),
             (self.sprite.baseTy == 0 and -24) or (self.sprite.baseTy == 3 and -50) or -24
     end,
     preBeamWidth = function(a) return 1 end,

@@ -117,7 +117,7 @@ function love.draw()
         love.graphics.draw(coffeeBlandLogoImg, x/2 - logoX/2, y/2 - logoY/2)
 
         -- fade in
-        local alpha = 1 - min(splashFrame, splashFrames - 30 - splashFrame) / splashAlphaFrames
+        local alpha = 1 - min(splashFrame - 30, splashFrames - 30 - splashFrame) / splashAlphaFrames
         love.graphics.setColor(0, 0, 0, alpha * 255)
         love.graphics.setShader(shader)
         love.graphics.rectangle('fill', 0, 0, x, y)
@@ -156,3 +156,4 @@ function love.draw()
         game.ui()
     end
 end
+bob = 1

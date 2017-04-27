@@ -12,16 +12,10 @@ local treeColor = {
 Tree = {}
 Tree.__index = Tree
 local function newTree(x, y)
-    local body = love.physics.newBody(world, x, y, "static")
-    local shape = love.physics.newCircleShape(8)
-    local fixture = love.physics.newFixture(body, shape, 1)
     local obj = setmetatable({
-        x = 0,
-        y = 0,
+        x = x,
+        y = y,
         flip = rand() < 0.5,
-        body = body,
-        shape = shape,
-        fixture = fixture,
         color = treeColor[1],
         leavesAlpha = 0,
     }, Tree)
@@ -34,10 +28,10 @@ setmetatable(Tree, {
     __call = function(_, ...) return newTree(...) end
 })
 function Tree:pos()
-    return self.body:getX(), self.body:getY()
+    return self.x, self.y
 end
 function Tree:getZ()
-    return self.body:getY()
+    return self.y
 end
 function Tree:update(dt)
     local inside = crustal:inside(self:pos())
@@ -53,8 +47,20 @@ function Tree:draw(camera)
         treeSprite:drawSpecific(x - cx, y - cy, 1, 0, self.flip, false, treeColor[3])
     end
 end
+function Tree:create()
+    local body = love.physics.newBody(world, self.x, self.y, "static")
+    local shape = love.physics.newCircleShape(8)
+    local fixture = love.physics.newFixture(body, shape, 1)
+
+    self.body = body
+    self.shape = shape
+    self.fixture = fixture
+end
 function Tree:destroy()
     removeBody(self)
+    self.body = nil
+    self.shape = nil
+    self.fixture = nil
 end
 
 Chunk = {}
@@ -92,20 +98,31 @@ local function newChunk(x, y, w, h)
     for i = 1, pow(rand(), 2) * 20 do
         local tree = Tree(x + rand() * w, y + rand() * h)
         table.insert(actors, tree)
-        addActor(tree)
     end
     return setmetatable({
       x = x,
       y = y,
       props = props,
-      actors = actors
+      actors = actors,
+      loaded = false,
     }, Chunk)
 end
 setmetatable(Chunk, {
     __call = function(_, ...) return newChunk(...) end
 })
+function Chunk:load()
+    self.loaded = true
+    for _, a in pairs(self.actors) do
+        a.shouldRemove = false
+        if not a.body then
+            a:create()
+            addActor(a)
+        end
+    end
+end
 function Chunk:unload()
-    for i, a in pairs(self.actors) do
+    self.loaded = false
+    for _, a in pairs(self.actors) do
         a.shouldRemove = true
     end
 end
@@ -134,10 +151,10 @@ local function newEnvironment(chunkSize)
         ttSpawnBlob = 360,
         spawnRateBlob = 1/6,
 
-        ttSpawnHealth = 60*10,
-        spawnRateHealth = 1/16,
-        ttSpawnSpecialWave = 60*24,
-        spawnRateSpecialWave = 1/18,
+        ttSpawnHealth = 60*60,
+        spawnRateHealth = 1/60,
+        ttSpawnSpecialWave = 60*30,
+        spawnRateSpecialWave = 1/30,
     }, Environment)
 end
 setmetatable(Environment, {
@@ -146,34 +163,30 @@ setmetatable(Environment, {
 function Environment:draw(camera)
     local mw, Mw, mh, Mh = camera:bounds()
     local cs = self.chunkSize
-    mpX = floor(mw / cs)
-    mpY = floor(mh / cs)
-    MpX = ceil(Mw / cs)
-    MpY = ceil(Mh / cs)
-    for i = mpX, MpX do
+    local mpX = floor(mw / cs)
+    local mpY = floor(mh / cs)
+    local MpX = ceil(Mw / cs)
+    local MpY = ceil(Mh / cs)
+    for i = mpX - 1, MpX + 1 do
+        local insideX = i >= mpX and i <= MpX
         if not self.chunks[i] then
             self.chunks[i] = {}
         end
-        for j = mpY, MpY do
+        for j = mpY - 1, MpY + 1 do
+            local insideY = j >= mpY and j <= MpY
             local chunk = self.chunks[i][j]
-            if not chunk then
-                chunk = Chunk(i * cs, j * cs, cs, cs)
-                self.chunks[i][j] = chunk
+            if insideX and insideY then
+                if not chunk then
+                    chunk = Chunk(i * cs, j * cs, cs, cs)
+                    self.chunks[i][j] = chunk
+                end
+                if not chunk.loaded then chunk:load() end
+                chunk:draw(camera)
+            else
+                if chunk and chunk.loaded then chunk:unload() end
             end
-            chunk.visited = true
-            chunk:draw(camera)
         end
     end
-    --for i, col in pairs(self.chunks) do
-    --    for j, chunk in pairs(col) do
-    --        if not chunk.visited then
-    --            print("Unloading")
-    --            chunk:unload()
-    --            self.chunks[i][j] = nil
-    --        end
-    --        chunk.visited = false
-    --    end
-    --end
 end
 function Environment:update(dt)
     self.ttSpawnBasic = self.ttSpawnBasic - 1
@@ -213,6 +226,6 @@ function Environment:update(dt)
 
     self.spawnRateBasic = min(self.spawnRateBasic + 0.0004, 6) -- Max 6 basic per second
     self.spawnRateBlob = min(self.spawnRateBlob + 0.0001, 3) -- Max 3 blob per second
-    self.spawnRateHealth = min(self.spawnRateHealth + 0.0001, 1/8) -- Max 1 health per 8 sec
-    self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0002, 1/5) -- Max 1 special wave per 5 sec
+    self.spawnRateHealth = min(self.spawnRateHealth + 0.00005, 1/20) -- Max 1 health per 20 sec
+    self.spawnRateSpecialWave = min(self.spawnRateSpecialWave + 0.0001, 1/15) -- Max 1 special wave per 15 sec
 end
