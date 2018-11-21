@@ -4,10 +4,10 @@ local treeImg = love.graphics.newImage("imgs/tree.png")
 local treeSprite = AnimSprite(treeImg, 64, 128, 0, false, 32, 122)
 local treeColor = {
     -- trunk
-    { 77, 51, 71 },
-    { 120, 80, 60 },
+    { 77/255, 51/255, 71/255 },
+    { 120/255, 80/255, 60/255 },
     -- leaves
-    { 150, 210, 110, 0 }
+    { 150/255, 210/255, 110/255, 0 }
 }
 Tree = {}
 Tree.__index = Tree
@@ -43,7 +43,7 @@ function Tree:draw(camera)
     local x, y = self:pos()
     treeSprite:drawSpecific(x - cx, y - cy, 0, 0, self.flip, false, self.color)
     if self.leavesAlpha > 0 then
-        treeColor[3][4] = self.leavesAlpha
+        treeColor[3][4] = self.leavesAlpha/255
         treeSprite:drawSpecific(x - cx, y - cy, 1, 0, self.flip, false, treeColor[3])
     end
 end
@@ -69,11 +69,11 @@ local propsImg = love.graphics.newImage("imgs/props.png")
 local propsSprite = AnimSprite(propsImg, 16, 16)
 local propsColors = {
     -- Grass
-    { 82, 230, 118},
-    { 77, 51, 71 },
+    { 82/255, 230/255, 118/255},
+    { 77/255, 51/255, 71/255 },
     -- Rock
-    { 240, 220, 230 },
-    { 77, 51, 71 },
+    { 240/255, 220/255, 230/255 },
+    { 77/255, 51/255, 71/255 },
 }
 local function newChunk(x, y, w, h)
     local props = {}

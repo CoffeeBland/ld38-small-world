@@ -336,7 +336,7 @@ blob = {
     beamWidth = function(a)
         return sin(a * pi) * (sin(a * 16 * pi) * 4 + 10)
     end,
-    beamColor = function(a) return { 255, 0, 96 } end
+    beamColor = function(a) return { 255/255, 0/255, 96/255 } end
 }
 EnemyBlob = function(x, y)
     return Enemy(blob, x, y)

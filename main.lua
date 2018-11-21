@@ -20,12 +20,12 @@ function clamp(x, m, M) return max(min(x, M), m) end
 function dst(x, y) return sqrt(dst2(x, y)) end
 function dst2(x, y) return pow(x, 2) + pow(y, 2) end
 function noop() end
-white = { 255, 255, 255 }
-magenta = {255, 0, 96}
-blue = {23, 34, 255}
-teal = {0, 255, 255}
-grass = {86, 186, 112}
-dirt = {100, 67, 93}
+white = {255/255, 255/255, 255/255}
+magenta = {255/255, 0/255, 96/255}
+blue = {23/255, 34/255, 255/255}
+teal = {0/255, 255/255, 255/255}
+grass = {86/255, 186/255, 112/255}
+dirt = {100/255, 67/255, 93/255}
 
 require('game')
 state = 'splash'
@@ -48,7 +48,7 @@ gameoverText = 'FAILURE!'
 
 function love.load()
     love.window.setTitle('Crustal')
-    love.window.setIcon(love.graphics.newImage('imgs/crustal.png'):getData())
+    --love.window.setIcon(love.graphics.newImage('imgs/crustal.png'):getData())
     game.load()
     game.update(0)
     monoFont = love.graphics.newFont('fonts/Go-Mono-Bold.ttf', 18)
@@ -102,23 +102,23 @@ function shadowRender(text, x, y, w, s)
     love.graphics.printf(text, x - s, y - s, w, 'center')
     love.graphics.setColor(magenta)
     love.graphics.printf(text, x + s, y + s, w, 'center')
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(255/255, 255/255, 255/255)
     love.graphics.printf(text, x, y, w, 'center')
 end
 function love.draw()
     local x, y = love.graphics.getDimensions()
     if state == 'splash' then
 
-        love.graphics.setColor(72, 72, 72)
+        love.graphics.setColor(72/255, 72/255, 72/255)
         love.graphics.rectangle('fill', 0, 0, x, y)
 
         local logoX, logoY = coffeeBlandLogoImg:getDimensions()
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(255/255, 255/255, 255/255)
         love.graphics.draw(coffeeBlandLogoImg, x/2 - logoX/2, y/2 - logoY/2)
 
         -- fade in
         local alpha = 1 - min(splashFrame - 30, splashFrames - 30 - splashFrame) / splashAlphaFrames
-        love.graphics.setColor(0, 0, 0, alpha * 255)
+        love.graphics.setColor(0/255, 0/255, 0/255, alpha)
         love.graphics.setShader(shader)
         love.graphics.rectangle('fill', 0, 0, x, y)
         love.graphics.setShader()
@@ -127,7 +127,7 @@ function love.draw()
 
     game.draw()
     if state ~= 'game' then
-        love.graphics.setColor(0, 0, 0, 170)
+        love.graphics.setColor(0/255, 0/255, 0/255, 170/255)
         love.graphics.rectangle('fill', 0, 0, x, y)
 
         if state == 'title' then

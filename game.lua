@@ -54,7 +54,7 @@ function addActor(p)
     table.insert(actors, p)
 end
 function removeBody(actor)
-    local bodies = world:getBodyList()
+    local bodies = world:getBodies()
     for i = #bodies, 1, -1 do
         if bodies[i] == actor.body then
             if actor.fixture then
@@ -134,7 +134,7 @@ function game.load()
             vec4 col = tex * vec4(vec3(color), 1);
             // the evil magenta isn't affected by lighting
             if (col.r > 0.9 && col.g < 0.1 && col.b < 0.5) return col;
-            float light = round(max(1 - sqrt(dst/388), 0.1) * 8) / 8;
+            float light = ceil(max(1 - sqrt(dst/388), 0.1) * 8) / 8;
             return vec4(vec3(col) * light, col.a);
 
         }
@@ -184,7 +184,7 @@ function game.draw()
     love.graphics.setShader()
 end
 function drawScore(w, h)
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(255/255, 255/255, 255/255)
 
     love.graphics.setFont(smallFont)
     love.graphics.setColor(white)
@@ -198,12 +198,12 @@ function game.ui()
     local w, h = love.graphics.getDimensions()
 
     -- Life bar
-    love.graphics.setColor(0, 135, 105)
+    love.graphics.setColor(0/255, 135/255, 105/255)
     love.graphics.rectangle("fill", 30, 34, initialLife*2, 16)
-    love.graphics.setColor(0, 198, 154)
+    love.graphics.setColor(0/255, 198/255, 154/255)
     love.graphics.rectangle("fill", 32, 32, life*2, 16)
     love.graphics.setFont(smallFont)
-    love.graphics.setColor(0, 90, 70)
+    love.graphics.setColor(0/255, 90/255, 70/255)
     love.graphics.print(tostring(ceil(life)),
         36, round(32 + (16 - smallFont:getHeight()) / 2))
 
@@ -212,7 +212,7 @@ function game.ui()
 
     -- Special wave indicator
     if player.specialWaveReady then
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(255/255, 255/255, 255/255)
         love.graphics.setFont(mediumFont)
         love.graphics.print("Wave Special Ready", 36, h - mediumFont:getHeight() - smallFont:getHeight() - 36)
         love.graphics.setFont(smallFont)
