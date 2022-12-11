@@ -168,6 +168,7 @@ function Player:update(dt)
     Actor.update(self, dt)
 
     local x, y = self:pos()
+
     if not crustal:inside(x, y) then
         self.outsideCrustalFor = self.outsideCrustalFor + 1
         -- minus 3 life per s. accelerating up to 60 per s. after 10 s.

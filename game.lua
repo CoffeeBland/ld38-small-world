@@ -35,9 +35,13 @@ function tripodMovement(self, actor, movX, movY, speedX, speedY)
     self.fpt = 20 / (dst(speedX, speedY) / 300 + 1)
 end
 
+dmgSfx = sfx("snds/dmg.ogg", 10)
 function damage(amount)
     life = max(min(life - amount, initialLife), 0)
     shake(amount + 4, amount * 20)
+    if amount >= 5 then
+        dmgSfx.play(camera.x, camera.y)
+    end
 end
 function damageCrustal(amount)
     if crustal.shouldRemove then return end
@@ -268,6 +272,7 @@ function game.update(dt)
     local px, py = player:pos()
     local cx, cy = crustal:pos()
     camera.x, camera.y = (px+cx)/2, (py+cy)/2
+    love.audio.setPosition(camera.x / 64, camera.y / 64, 0)
 end
 
 function beginContact(a, b, coll)

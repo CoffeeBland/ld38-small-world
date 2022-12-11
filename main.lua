@@ -2,6 +2,66 @@ love.graphics.setDefaultFilter("nearest", "nearest")
 love.window.setMode(800, 600, { resizable = true, vsync = true, fullscreen = true })
 love.mouse.setVisible(false)
 
+love.audio.setDistanceModel("exponentclamped")
+love.audio.setDopplerScale(16)
+
+function sfx(src, maxCount)
+    local snd = love.audio.newSource(src, "static")
+    maxCount = maxCount or 1
+    local backing = {}
+    local playbackIds = {}
+    local nextFree = 1
+    local nextId = 1
+    for i = 1, maxCount do
+        backing[i] = snd:clone()
+    end
+
+    function play(x, y, volume, pitch)
+        local snd = backing[nextFree]
+        if not snd:isPlaying() then
+            snd:setPosition(x / 64, y / 64, 0)
+            snd:setPitch(pitch or (0.95 + love.math.random() * 0.1))
+            snd:setVolume(volume or 1)
+            snd:play()
+        end
+        local id = nextId
+        playbackIds[nextFree] = id
+        nextFree = (nextFree % maxCount) + 1
+        nextId = nextId + 1
+        return id
+    end
+
+    function forId(id)
+        for i = 1, maxCount do
+            if playbackIds[i] == id then
+                return backing[i]
+            end
+        end
+    end
+
+    function stop(id)
+        local snd = forId(id)
+        return snd and snd:stop()
+    end
+
+    function setPosition(id, x, y)
+        local snd = forId(id)
+        return snd and snd:setPosition(x / 64, y / 64, 0)
+    end
+
+    function setVelocity(id, x, y)
+        local snd = forId(id)
+        return snd and snd:setVelocity(x / 64, y / 64, 0)
+    end
+
+    return {
+        play = play,
+        stop = stop,
+        setPosition = setPosition,
+        setVelocity = setVelocity
+    }
+end
+
 abs = math.abs
 pi = math.pi
 cos = math.cos
